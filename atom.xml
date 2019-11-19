@@ -200,32 +200,6 @@
   </entry>
   
   <entry>
-    <title>K8s PV、PVC、StorageClass</title>
-    <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/"/>
-    <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/</id>
-    <published>2019-02-15T22:49:50.000Z</published>
-    <updated>2019-11-19T15:40:25.014Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="PV、PVC、StorageClass"><a href="#PV、PVC、StorageClass" class="headerlink" title="PV、PVC、StorageClass"></a>PV、PVC、StorageClass</h1><h2 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h2><p>PV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。</p><p>通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集群里待用的。比如，运维人员可以定义这样一个 NFS 类型的 PV，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumemetadata:  name: nfsspec:  storageClassName: manual  capacity:    storage: 1Gi  accessModes:    - ReadWriteMany  nfs:    server: 10.244.1.4    path: &quot;/&quot;</code></pre><h2 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h2><p>而PVC 描述的，则是 Pod 所希望使用的持久化存储的属性。比如，Volume 存储的大小、可读写权限等等。</p><p>PVC 对象通常由开发人员创建；或者以 PVC 模板的方式成为 StatefulSet 的一部分，然后由 StatefulSet 控制器负责创建带编号的 PVC。</p><p>比如，开发人员可以声明一个 1 GiB 大小的 PVC，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumeClaimmetadata:  name: nfsspec:  accessModes:    - ReadWriteMany  storageClassName: manual  resources:    requests:      storage: 1Gi</code></pre><p>而用户创建的 PVC 要真正被容器使用起来，就必须先和某个符合条件的 PV 进行绑定。这里要检查的条件，包括两部分：</p><ol><li>第一个条件，当然是 PV 和 PVC 的 spec 字段。比如，PV 的存储（storage）大小，就必须满足 PVC 的要求。</li><li>第二个条件，则是 PV 和 PVC 的 storageClassName 字段必须一样。这个机制我会在本篇文章的最后一部分专门介绍。</li></ol><p>在成功地将 PVC 和 PV 进行绑定之后，Pod 就能够像使用 hostPath 等常规类型的 Volume 一样，在自己的 YAML 文件里声明使用这个 PVC 了，如下所示：</p><pre><code>apiVersion: v1kind: Podmetadata:  labels:    role: web-frontendspec:  containers:  - name: web    image: nginx    ports:      - name: web        containerPort: 80    volumeMounts:        - name: nfs          mountPath: &quot;/usr/share/nginx/html&quot;  volumes:  - name: nfs    persistentVolumeClaim:      claimName: nfs</code></pre><h2 id="StorageClass"><a href="#StorageClass" class="headerlink" title="StorageClass"></a>StorageClass</h2><p>StorageClass 的作用，则是充当 PV 的模板。并且，只有同属于一个 StorageClass 的 PV 和 PVC，才可以绑定在一起。</p><p>StorageClass 的另一个重要作用，是指定 PV 的 Provisioner（存储插件）。这时候，如果你的存储插件支持 Dynamic Provisioning 的话，Kubernetes 就可以自动为你创建 PV 了。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;PV、PVC、StorageClass&quot;&gt;&lt;a href=&quot;#PV、PVC、StorageClass&quot; class=&quot;headerlink&quot; title=&quot;PV、PVC、StorageClass&quot;&gt;&lt;/a&gt;PV、PVC、StorageClass&lt;/h1&gt;&lt;h2 i
-      
-    
-    </summary>
-    
-    
-      <category term="kubernetes" scheme="https://bamboox.online/categories/kubernetes/"/>
-    
-    
-      <category term="kubernetes" scheme="https://bamboox.online/tags/kubernetes/"/>
-    
-  </entry>
-  
-  <entry>
     <title>K8s CSI</title>
     <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/"/>
     <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/</id>
@@ -239,6 +213,32 @@
       
       
         &lt;h1 id=&quot;CSI开发&quot;&gt;&lt;a href=&quot;#CSI开发&quot; class=&quot;headerlink&quot; title=&quot;CSI开发&quot;&gt;&lt;/a&gt;CSI开发&lt;/h1&gt;&lt;h2 id=&quot;架构图&quot;&gt;&lt;a href=&quot;#架构图&quot; class=&quot;headerlink&quot; title=&quot;架构图&quot;&gt;&lt;/
+      
+    
+    </summary>
+    
+    
+      <category term="kubernetes" scheme="https://bamboox.online/categories/kubernetes/"/>
+    
+    
+      <category term="kubernetes" scheme="https://bamboox.online/tags/kubernetes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>K8s PV、PVC、StorageClass</title>
+    <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/"/>
+    <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/</id>
+    <published>2019-02-15T22:49:50.000Z</published>
+    <updated>2019-11-19T15:40:25.014Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="PV、PVC、StorageClass"><a href="#PV、PVC、StorageClass" class="headerlink" title="PV、PVC、StorageClass"></a>PV、PVC、StorageClass</h1><h2 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h2><p>PV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。</p><p>通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集群里待用的。比如，运维人员可以定义这样一个 NFS 类型的 PV，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumemetadata:  name: nfsspec:  storageClassName: manual  capacity:    storage: 1Gi  accessModes:    - ReadWriteMany  nfs:    server: 10.244.1.4    path: &quot;/&quot;</code></pre><h2 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h2><p>而PVC 描述的，则是 Pod 所希望使用的持久化存储的属性。比如，Volume 存储的大小、可读写权限等等。</p><p>PVC 对象通常由开发人员创建；或者以 PVC 模板的方式成为 StatefulSet 的一部分，然后由 StatefulSet 控制器负责创建带编号的 PVC。</p><p>比如，开发人员可以声明一个 1 GiB 大小的 PVC，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumeClaimmetadata:  name: nfsspec:  accessModes:    - ReadWriteMany  storageClassName: manual  resources:    requests:      storage: 1Gi</code></pre><p>而用户创建的 PVC 要真正被容器使用起来，就必须先和某个符合条件的 PV 进行绑定。这里要检查的条件，包括两部分：</p><ol><li>第一个条件，当然是 PV 和 PVC 的 spec 字段。比如，PV 的存储（storage）大小，就必须满足 PVC 的要求。</li><li>第二个条件，则是 PV 和 PVC 的 storageClassName 字段必须一样。这个机制我会在本篇文章的最后一部分专门介绍。</li></ol><p>在成功地将 PVC 和 PV 进行绑定之后，Pod 就能够像使用 hostPath 等常规类型的 Volume 一样，在自己的 YAML 文件里声明使用这个 PVC 了，如下所示：</p><pre><code>apiVersion: v1kind: Podmetadata:  labels:    role: web-frontendspec:  containers:  - name: web    image: nginx    ports:      - name: web        containerPort: 80    volumeMounts:        - name: nfs          mountPath: &quot;/usr/share/nginx/html&quot;  volumes:  - name: nfs    persistentVolumeClaim:      claimName: nfs</code></pre><h2 id="StorageClass"><a href="#StorageClass" class="headerlink" title="StorageClass"></a>StorageClass</h2><p>StorageClass 的作用，则是充当 PV 的模板。并且，只有同属于一个 StorageClass 的 PV 和 PVC，才可以绑定在一起。</p><p>StorageClass 的另一个重要作用，是指定 PV 的 Provisioner（存储插件）。这时候，如果你的存储插件支持 Dynamic Provisioning 的话，Kubernetes 就可以自动为你创建 PV 了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;PV、PVC、StorageClass&quot;&gt;&lt;a href=&quot;#PV、PVC、StorageClass&quot; class=&quot;headerlink&quot; title=&quot;PV、PVC、StorageClass&quot;&gt;&lt;/a&gt;PV、PVC、StorageClass&lt;/h1&gt;&lt;h2 i
       
     
     </summary>
