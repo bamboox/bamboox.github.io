@@ -413,28 +413,6 @@
     
     
     <div class="carousel-item amber white-text carousel-post bg-cover"
-            style="background-image: url('/medias/featureimages/19.jpg');">
-        <div class="container" style="right: 0px;left: 0px;">
-            <div class="row">
-                <div class="col s10 offset-s1">
-                    <div class="title center-align">K8s choosing-a-cni-provider</div>
-                    <div class="description center-align">
-                    
-                        choosing-a-cni-provider容器网络接口（CNI）是一个库定义，是Cloud Native Computing Foundation项目保护下的一组工具。有关更多信息，请访问他们的GitHub 项目。Kubernetes使
-                    
-                    </div>
-                    <div class="cover-btns">
-                        <a href="/2019/02/05/k8s-14-cni/" class="waves-effect waves-light btn" target="_blank">
-                            <i class="icon far fa-eye fa-fw"></i>阅读更多
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    
-    <div class="carousel-item amber white-text carousel-post bg-cover"
             style="background-image: url('/medias/featureimages/22.jpg');">
         <div class="container" style="right: 0px;left: 0px;">
             <div class="row">
@@ -448,6 +426,28 @@
                     </div>
                     <div class="cover-btns">
                         <a href="/2019/02/15/k8s-15-cun-chu-01/" class="waves-effect waves-light btn" target="_blank">
+                            <i class="icon far fa-eye fa-fw"></i>阅读更多
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    
+    <div class="carousel-item amber white-text carousel-post bg-cover"
+            style="background-image: url('/medias/featureimages/19.jpg');">
+        <div class="container" style="right: 0px;left: 0px;">
+            <div class="row">
+                <div class="col s10 offset-s1">
+                    <div class="title center-align">K8s choosing-a-cni-provider</div>
+                    <div class="description center-align">
+                    
+                        choosing-a-cni-provider容器网络接口（CNI）是一个库定义，是Cloud Native Computing Foundation项目保护下的一组工具。有关更多信息，请访问他们的GitHub 项目。Kubernetes使
+                    
+                    </div>
+                    <div class="cover-btns">
+                        <a href="/2019/02/05/k8s-14-cni/" class="waves-effect waves-light btn" target="_blank">
                             <i class="icon far fa-eye fa-fw"></i>阅读更多
                         </a>
                     </div>
@@ -1017,21 +1017,21 @@ c
             
             <div class="article col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/2019/02/15/k8s-15-cun-chu-02/">
+                    <a href="/2019/02/15/k8s-15-cun-chu-01/">
                         <div class="card-image">
                             
                             
-                            <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="K8s CSI">
+                            <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="K8s PV、PVC、StorageClass">
                             
-                            <span class="card-title">K8s CSI</span>
+                            <span class="card-title">K8s PV、PVC、StorageClass</span>
                         </div>
                     </a>
 
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                CSI开发架构图
-三个独立的外部组件（External Components），即：Driver Registrar、External Provisioner 和 External Attacher，对应的正是从 Kubernetes 项目
+                                PV、PVC、StorageClasspvPV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。
+通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集
                             
                         </div>
                         <div class="publish-info">
@@ -1065,21 +1065,21 @@ c
             
             <div class="article col s12 m6 l4" data-aos="zoom-in">
                 <div class="card">
-                    <a href="/2019/02/15/k8s-15-cun-chu-01/">
+                    <a href="/2019/02/15/k8s-15-cun-chu-02/">
                         <div class="card-image">
                             
                             
-                            <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="K8s PV、PVC、StorageClass">
+                            <img src="/medias/featureimages/1.jpg" class="responsive-img" alt="K8s CSI">
                             
-                            <span class="card-title">K8s PV、PVC、StorageClass</span>
+                            <span class="card-title">K8s CSI</span>
                         </div>
                     </a>
 
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                PV、PVC、StorageClasspvPV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。
-通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集
+                                CSI开发架构图
+三个独立的外部组件（External Components），即：Driver Registrar、External Provisioner 和 External Attacher，对应的正是从 Kubernetes 项目
                             
                         </div>
                         <div class="publish-info">
