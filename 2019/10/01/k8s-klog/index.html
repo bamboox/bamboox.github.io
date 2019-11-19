@@ -1,0 +1,1365 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="K8S日志库源码分析：klog, 个人笔记">
+    <meta name="description" content="klog是著名google开源C++日志库glog的golang版本，具有轻量级、简单、稳定和高效等特性
+概览主要有以下特点：
+
+支持四种日志等级INFO &amp;lt; WARING &amp;lt; ERROR &amp;lt; FATAL，不支持DEBUG">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>K8S日志库源码分析：klog | Bamboo&#39;s Blog</title>
+    <link rel="icon" type="image/png" href="/favicon.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
+    
+<link rel="alternate" href="/atom.xml" title="Bamboo's Blog" type="application/atom+xml">
+<link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper head-container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">Bamboo's Blog</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">Bamboo's Blog</div>
+        <div class="logo-desc">
+            
+            kubernetes | CNCF | 笔记
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/bamboox" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/bamboox" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/19.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <div class="description center-align post-title">
+                        K8S日志库源码分析：klog
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #toc-content .is-active-link::before {
+        background-color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/kubernetes/">
+                                <span class="chip bg-color">kubernetes</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/kubernetes-klog/" class="post-category">
+                                kubernetes,klog
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2019-10-01
+                </div>
+                
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
+                    2019-11-19
+                </div>
+                
+
+                
+                    
+                    <div class="info-break-policy">
+                        <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        2.5k
+                    </div>
+                    
+
+                    
+                    <div class="info-break-policy">
+                        <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        12 分
+                    </div>
+                    
+                
+				
+				
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="far fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+				
+            </div>
+        </div>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <p><a href="https://github.com/kubernetes/klog/" target="_blank" rel="noopener">klog</a>是著名google开源C++日志库<a href="https://github.com/google/glog" target="_blank" rel="noopener">glog</a>的golang版本，具有轻量级、简单、稳定和高效等特性</p>
+<h1 id="概览"><a href="#概览" class="headerlink" title="概览"></a>概览</h1><p>主要有以下特点：</p>
+<ul>
+<li>支持四种日志等级INFO &lt; WARING &lt; ERROR &lt; FATAL，不支持DEBUG等级。</li>
+<li>每个日志等级对应一个日志文件，低等级的日志文件中除了包含该等级的日志，还会包含高等级的日志。</li>
+<li>日志文件可以根据大小切割，但是不能根据日期切割。</li>
+<li>日志文件名称格式：program.host.userName.log.log_level.date-time.pid，不可自定义。</li>
+<li>固定日志输出格式：Lmmdd hh:mm:ss.uuuuuu threadid file:line] msg…，不可自定义。</li>
+<li>程序开始时必须调用flag.Parse()解析命令行参数，退出时必须调用glog.Flush()确保将缓存区日志输出。</li>
+</ul>
+<h1 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h1><p>Example：</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">package</span> main
+
+<span class="token keyword">import</span> <span class="token punctuation">(</span>
+    <span class="token string">"flag"</span>
+    <span class="token string">"fmt"</span>
+    <span class="token string">"os"</span>
+
+    <span class="token string">"k8s.io/klog"</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">func</span> <span class="token function">main</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    klog<span class="token punctuation">.</span><span class="token function">InitFlags</span><span class="token punctuation">(</span><span class="token boolean">nil</span><span class="token punctuation">)</span>
+    <span class="token comment" spellcheck="true">//Init the command-line flags.</span>
+    flag<span class="token punctuation">.</span><span class="token function">Parse</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// Will be ignored as the program has exited in Fatal().</span>
+    <span class="token keyword">defer</span> <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        fmt<span class="token punctuation">.</span><span class="token function">Println</span><span class="token punctuation">(</span><span class="token string">"Message in defer"</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// Flushes all pending log I/O.</span>
+    <span class="token keyword">defer</span> klog<span class="token punctuation">.</span><span class="token function">Flush</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// The temp folder for log files when --log_dir is not set.</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Printf</span><span class="token punctuation">(</span><span class="token string">"Temp folder for log files: %s\n"</span><span class="token punctuation">,</span> os<span class="token punctuation">.</span><span class="token function">TempDir</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+
+    klog<span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span><span class="token string">"Info"</span><span class="token punctuation">)</span>
+    klog<span class="token punctuation">.</span><span class="token function">V</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span><span class="token string">"L1 info"</span><span class="token punctuation">)</span>
+    klog<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token string">"Error"</span><span class="token punctuation">)</span>
+    klog<span class="token punctuation">.</span><span class="token function">Fatal</span><span class="token punctuation">(</span><span class="token string">"Fatal"</span><span class="token punctuation">)</span>
+
+    <span class="token comment" spellcheck="true">// Will be ignored as the program has exited in Fatal().</span>
+    klog<span class="token punctuation">.</span><span class="token function">Error</span><span class="token punctuation">(</span><span class="token string">"Error after Fatal"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Output</p>
+<pre class="line-numbers language-shell"><code class="language-shell">$ go run klog.go  -logtostderr=false                                                                                                                                                                                                                      1 ↵
+Temp folder for log files: /tmp
+E1030 15:13:03.257539    5821 klog.go:30] Error
+F1030 15:13:03.257736    5821 klog.go:31] Fatal
+goroutine 1 [running]:
+k8s.io/klog.stacks(0xc00008c200, 0xc0000d2000, 0x30, 0x40)
+        /home/bamboo/test/go/pkg/mod/k8s.io/klog@v1.0.0/klog.go:875 +0xb8
+k8s.io/klog.(*loggingT).output(0x5b5fc0, 0xc000000003, 0xc0000c4000, 0x59c9eb, 0x7, 0x1f, 0x0)
+        /home/bamboo/test/go/pkg/mod/k8s.io/klog@v1.0.0/klog.go:826 +0x330
+k8s.io/klog.(*loggingT).printDepth(0x5b5fc0, 0xc000000003, 0x1, 0xc0000cbf00, 0x1, 0x1)
+        /home/bamboo/test/go/pkg/mod/k8s.io/klog@v1.0.0/klog.go:698 +0x129
+k8s.io/klog.(*loggingT).print(...)
+        /home/bamboo/test/go/pkg/mod/k8s.io/klog@v1.0.0/klog.go:689
+k8s.io/klog.Fatal(...)
+        /home/bamboo/test/go/pkg/mod/k8s.io/klog@v1.0.0/klog.go:1256
+main.main()
+        /home/bamboo/test/go/src/bamboo/test/klog.go:31 +0x326
+exit status 255
+<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Usage</p>
+<pre class="line-numbers language-shell"><code class="language-shell"> $ go run klog.go -h                                                                                                                                                                                                                                       1 ↵
+Usage of /tmp/go-build023011031/b001/exe/klog:
+  -add_dir_header
+        If true, adds the file directory to the header 如果为true，则将文件目录添加到标题中
+  -alsologtostderr 
+        log to standard error as well as files  同时输出到os.Stderr和log files 
+  -log_backtrace_at value 
+        when logging hits line file:N, emit a stack trace 当日志长度超过定义的行数时，忽略堆栈信息。
+  -log_dir string
+        If non-empty, write log files in this directory  指定log files的目录，默认是os.TempDir() 
+  -log_file string 
+        If non-empty, use this log file 指定log files的文件名，如果是空安排日志级别分别创建日志文件，并且创建软连
+  -log_file_max_size uint  
+        Defines the maximum size a log file can grow to. Unit is megabytes. If the value is 0, the maximum file size is unlimited. (default 1800) 日志文件大小单位MB
+  -logtostderr
+        log to standard error instead of files (default true) 输出日志到标准错误控制台，不输出到文件。
+  -skip_headers
+        If true, avoid header prefixes in the log messages 如果为true，请在日志消息中避免标题前缀
+  -skip_log_headers
+        If true, avoid headers when opening log files 如果为true，则在打开日志文件时避免标题
+  -stderrthreshold value 
+        logs at or above this threshold go to stderr (default 2)  大于等于该severity的log，会输出到os.Stderr 
+  -v value 
+        number for the log level verbosity  设置vLog的等级 
+  -vmodule value
+        comma-separated list of pattern=N settings for file-filtered logging 定输出日志的模块，格式如下：pattern=N，使用逗号分隔。
+exit status 2<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>Log files输出到默认的临时目录（/tmp）下。在标准输出上只能看到Info Error和Fatal log，是因为默认的<code>--v</code>为0。</p>
+<p>需要注意的是， <code>-logtostderr=true</code> 调用glog.Fatal(“Fatal”)，程序会输出所有goroutine的堆栈信息，然后调用os.Exit()退出程序。所以，其前面的defer代码以及后面的代码，都不会执行。</p>
+<h1 id="日志输出到文件配置："><a href="#日志输出到文件配置：" class="headerlink" title="日志输出到文件配置："></a>日志输出到文件配置：</h1><pre class="line-numbers language-shell"><code class="language-shell">- --v=5
+- --logtostderr=false
+- --log_dir=/xxx/xxx
+- --log_file=/xx/xx/xx.log
+- --stderrthreshold=1<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h1><p>klog的代码非常简单，总共代码行数1.4K左右，分两个文件： <code>klog_file.go</code> <code>klog.go</code></p>
+<ul>
+<li>klog.go：主要实现log等级定义、输出以及vlog。</li>
+<li>klog_file.go：主要实现日志文件目录和各等级日志文件的创建。</li>
+</ul>
+<h2 id="Log-Levels-Definition"><a href="#Log-Levels-Definition" class="headerlink" title="Log Levels Definition"></a>Log Levels Definition</h2><pre class="line-numbers language-go"><code class="language-go"><span class="token comment" spellcheck="true">// severity identifies the sort of log: info, warning etc. It also implements</span>
+<span class="token comment" spellcheck="true">// the flag.Value interface. The -stderrthreshold flag is of type severity and</span>
+<span class="token comment" spellcheck="true">// should be modified only through the flag.Value interface. The values match</span>
+<span class="token comment" spellcheck="true">// the corresponding constants in C++.</span>
+<span class="token keyword">type</span> severity <span class="token builtin">int32</span> <span class="token comment" spellcheck="true">// sync/atomic int32</span>
+
+<span class="token comment" spellcheck="true">// These constants identify the log levels in order of increasing severity.</span>
+<span class="token comment" spellcheck="true">// A message written to a high-severity log file is also written to each</span>
+<span class="token comment" spellcheck="true">// lower-severity log file.</span>
+<span class="token keyword">const</span> <span class="token punctuation">(</span>
+    infoLog severity <span class="token operator">=</span> <span class="token boolean">iota</span>
+    warningLog
+    errorLog
+    fatalLog
+    numSeverity <span class="token operator">=</span> <span class="token number">4</span>
+<span class="token punctuation">)</span>
+
+<span class="token keyword">const</span> severityChar <span class="token operator">=</span> <span class="token string">"IWEF"</span>
+
+<span class="token keyword">var</span> severityName <span class="token operator">=</span> <span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token builtin">string</span><span class="token punctuation">{</span>
+    infoLog<span class="token punctuation">:</span>    <span class="token string">"INFO"</span><span class="token punctuation">,</span>
+    warningLog<span class="token punctuation">:</span> <span class="token string">"WARNING"</span><span class="token punctuation">,</span>
+    errorLog<span class="token punctuation">:</span>   <span class="token string">"ERROR"</span><span class="token punctuation">,</span>
+    fatalLog<span class="token punctuation">:</span>   <span class="token string">"FATAL"</span><span class="token punctuation">,</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="Flush-Daemon"><a href="#Flush-Daemon" class="headerlink" title="Flush Daemon"></a>Flush Daemon</h2><p>klog在初始化的时候，会定义一些命令行参数，同时启动flush守护进程。Flush守护进程会间隔5s周期性地flush缓冲区中的log。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">const</span> flushInterval <span class="token operator">=</span> <span class="token number">5</span> <span class="token operator">*</span> time<span class="token punctuation">.</span>Second
+
+<span class="token comment" spellcheck="true">// flushDaemon periodically flushes the log file buffers.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">flushDaemon</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token keyword">range</span> time<span class="token punctuation">.</span><span class="token function">NewTicker</span><span class="token punctuation">(</span>flushInterval<span class="token punctuation">)</span><span class="token punctuation">.</span>C <span class="token punctuation">{</span>
+        l<span class="token punctuation">.</span><span class="token function">lockAndFlushAll</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="Log输出原理"><a href="#Log输出原理" class="headerlink" title="Log输出原理"></a>Log输出原理</h2><p>所有的log都支持多种输出模式，例如，Info<a href="">f|ln|Depth</a>，最终都是调用output()来输出到log files或者Stderr。</p>
+<p><code>Info()</code>与<code>Infoln()</code>没有区别，因为glog为了保证每行只有一条log记录，会主动check末尾是否有换行符，如果没有的话，会自动加上。 <code>InfoDepth()</code>提供的<code>depth</code>参数，用来指定log信息中source file number来自的堆栈的深度。当<code>depth</code>为0时，就等价于<code>Info()</code>。 由于<code>depth</code>的设置很难有一个明确的参考标准，因此<code>InfoDepth()</code>不常用。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">println</span><span class="token punctuation">(</span>s severity<span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line <span class="token operator">:=</span> l<span class="token punctuation">.</span><span class="token function">header</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Fprintln</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    l<span class="token punctuation">.</span><span class="token function">output</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">print</span><span class="token punctuation">(</span>s severity<span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    l<span class="token punctuation">.</span><span class="token function">printDepth</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">printDepth</span><span class="token punctuation">(</span>s severity<span class="token punctuation">,</span> depth <span class="token builtin">int</span><span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line <span class="token operator">:=</span> l<span class="token punctuation">.</span><span class="token function">header</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> depth<span class="token punctuation">)</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Fprint</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> buf<span class="token punctuation">.</span><span class="token function">Bytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>buf<span class="token punctuation">.</span><span class="token function">Len</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token string">'\n'</span> <span class="token punctuation">{</span>
+        buf<span class="token punctuation">.</span><span class="token function">WriteByte</span><span class="token punctuation">(</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    l<span class="token punctuation">.</span><span class="token function">output</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">printf</span><span class="token punctuation">(</span>s severity<span class="token punctuation">,</span> format <span class="token builtin">string</span><span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line <span class="token operator">:=</span> l<span class="token punctuation">.</span><span class="token function">header</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> <span class="token number">0</span><span class="token punctuation">)</span>
+    fmt<span class="token punctuation">.</span><span class="token function">Fprintf</span><span class="token punctuation">(</span>buf<span class="token punctuation">,</span> format<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> buf<span class="token punctuation">.</span><span class="token function">Bytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">[</span>buf<span class="token punctuation">.</span><span class="token function">Len</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">-</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token operator">!=</span> <span class="token string">'\n'</span> <span class="token punctuation">{</span>
+        buf<span class="token punctuation">.</span><span class="token function">WriteByte</span><span class="token punctuation">(</span><span class="token string">'\n'</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    l<span class="token punctuation">.</span><span class="token function">output</span><span class="token punctuation">(</span>s<span class="token punctuation">,</span> buf<span class="token punctuation">,</span> file<span class="token punctuation">,</span> line<span class="token punctuation">,</span> <span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token operator">...</span><span class="token operator">...</span>
+
+<span class="token comment" spellcheck="true">// Info logs to the INFO log.</span>
+<span class="token comment" spellcheck="true">// Arguments are handled in the manner of fmt.Print; a newline is appended if missing.</span>
+<span class="token keyword">func</span> <span class="token function">Info</span><span class="token punctuation">(</span>args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    logging<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// InfoDepth acts as Info but uses depth to determine which call frame to log.</span>
+<span class="token comment" spellcheck="true">// InfoDepth(0, "msg") is the same as Info("msg").</span>
+<span class="token keyword">func</span> <span class="token function">InfoDepth</span><span class="token punctuation">(</span>depth <span class="token builtin">int</span><span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    logging<span class="token punctuation">.</span><span class="token function">printDepth</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> depth<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Infoln logs to the INFO log.</span>
+<span class="token comment" spellcheck="true">// Arguments are handled in the manner of fmt.Println; a newline is appended if missing.</span>
+<span class="token keyword">func</span> <span class="token function">Infoln</span><span class="token punctuation">(</span>args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    logging<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Infof logs to the INFO log.</span>
+<span class="token comment" spellcheck="true">// Arguments are handled in the manner of fmt.Printf; a newline is appended if missing.</span>
+<span class="token keyword">func</span> <span class="token function">Infof</span><span class="token punctuation">(</span>format <span class="token builtin">string</span><span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    logging<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> format<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p><code>output()</code>在输出log的整个过程中都会加锁，以防止写冲突。每次输出log时都会check是否已调用<code>flag.Parse()</code>。  </p>
+<p>如果没有调用就直接将log输出到Stderr，同时在其前面提示ERROR: logging before flag.Parse: 的错误。  </p>
+<p>如果已经调用就会根据命令行参数来决定输出行为：如果设置–toStderr=true，就只会输出到Stderr  </p>
+<p>如果设置<code>--alsoToStderr=true</code>，且输出log level大于或等于<code>--stderrThreshold</code>的话， 输出到log file的同时也会输出到Stderr  </p>
+<p><code>stderrThreshold</code>的默认值是<code>ERROR</code> </p>
+<p>klog还有另外一个很赞的功能就是，遇到Fatal log会在自动退出程序，并在退出前将所有goroutine的堆栈信息输出，方便排错。因此，在程序需要异常退出的时候，直接调用Fatal<a href="">f|ln|Depth</a>，应该成为一种标准做法。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token comment" spellcheck="true">// output writes the data to the log files and releases the buffer.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>l <span class="token operator">*</span>loggingT<span class="token punctuation">)</span> <span class="token function">output</span><span class="token punctuation">(</span>s severity<span class="token punctuation">,</span> buf <span class="token operator">*</span>buffer<span class="token punctuation">,</span> file <span class="token builtin">string</span><span class="token punctuation">,</span> line <span class="token builtin">int</span><span class="token punctuation">,</span> alsoToStderr <span class="token builtin">bool</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    l<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> l<span class="token punctuation">.</span>traceLocation<span class="token punctuation">.</span><span class="token function">isSet</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> l<span class="token punctuation">.</span>traceLocation<span class="token punctuation">.</span><span class="token function">match</span><span class="token punctuation">(</span>file<span class="token punctuation">,</span> line<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            buf<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token function">stacks</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    data <span class="token operator">:=</span> buf<span class="token punctuation">.</span><span class="token function">Bytes</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> <span class="token operator">!</span>flag<span class="token punctuation">.</span><span class="token function">Parsed</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+        os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token punctuation">[</span><span class="token punctuation">]</span><span class="token function">byte</span><span class="token punctuation">(</span><span class="token string">"ERROR: logging before flag.Parse: "</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token keyword">if</span> l<span class="token punctuation">.</span>toStderr <span class="token punctuation">{</span>
+        os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span> <span class="token keyword">else</span> <span class="token punctuation">{</span>
+        <span class="token keyword">if</span> alsoToStderr <span class="token operator">||</span> l<span class="token punctuation">.</span>alsoToStderr <span class="token operator">||</span> s <span class="token operator">>=</span> l<span class="token punctuation">.</span>stderrThreshold<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">if</span> l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>s<span class="token punctuation">]</span> <span class="token operator">==</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> err <span class="token operator">:=</span> l<span class="token punctuation">.</span><span class="token function">createFiles</span><span class="token punctuation">(</span>s<span class="token punctuation">)</span><span class="token punctuation">;</span> err <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+                os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// Make sure the message appears somewhere.</span>
+                l<span class="token punctuation">.</span><span class="token function">exit</span><span class="token punctuation">(</span>err<span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">switch</span> s <span class="token punctuation">{</span>
+        <span class="token keyword">case</span> fatalLog<span class="token punctuation">:</span>
+            l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>fatalLog<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">fallthrough</span>
+        <span class="token keyword">case</span> errorLog<span class="token punctuation">:</span>
+            l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>errorLog<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">fallthrough</span>
+        <span class="token keyword">case</span> warningLog<span class="token punctuation">:</span>
+            l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>warningLog<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+            <span class="token keyword">fallthrough</span>
+        <span class="token keyword">case</span> infoLog<span class="token punctuation">:</span>
+            l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>infoLog<span class="token punctuation">]</span><span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">if</span> s <span class="token operator">==</span> fatalLog <span class="token punctuation">{</span>
+        <span class="token comment" spellcheck="true">// If we got here via Exit rather than Fatal, print no stacks.</span>
+        <span class="token keyword">if</span> atomic<span class="token punctuation">.</span><span class="token function">LoadUint32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>fatalNoStacks<span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span> <span class="token punctuation">{</span>
+            l<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+            <span class="token function">timeoutFlush</span><span class="token punctuation">(</span><span class="token number">10</span> <span class="token operator">*</span> time<span class="token punctuation">.</span>Second<span class="token punctuation">)</span>
+            os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">1</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// Dump all goroutine stacks before exiting.</span>
+        <span class="token comment" spellcheck="true">// First, make sure we see the trace for the current goroutine on standard error.</span>
+        <span class="token comment" spellcheck="true">// If -logtostderr has been specified, the loop below will do that anyway</span>
+        <span class="token comment" spellcheck="true">// as the first stack in the full dump.</span>
+        <span class="token keyword">if</span> <span class="token operator">!</span>l<span class="token punctuation">.</span>toStderr <span class="token punctuation">{</span>
+            os<span class="token punctuation">.</span>Stderr<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span><span class="token function">stacks</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token comment" spellcheck="true">// Write the stack trace for all goroutines to the files.</span>
+        trace <span class="token operator">:=</span> <span class="token function">stacks</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
+        logExitFunc <span class="token operator">=</span> <span class="token keyword">func</span><span class="token punctuation">(</span><span class="token builtin">error</span><span class="token punctuation">)</span> <span class="token punctuation">{</span><span class="token punctuation">}</span> <span class="token comment" spellcheck="true">// If we get a write error, we'll still exit below.</span>
+        <span class="token keyword">for</span> log <span class="token operator">:=</span> fatalLog<span class="token punctuation">;</span> log <span class="token operator">>=</span> infoLog<span class="token punctuation">;</span> log<span class="token operator">--</span> <span class="token punctuation">{</span>
+            <span class="token keyword">if</span> f <span class="token operator">:=</span> l<span class="token punctuation">.</span>file<span class="token punctuation">[</span>log<span class="token punctuation">]</span><span class="token punctuation">;</span> f <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span> <span class="token comment" spellcheck="true">// Can be nil if -logtostderr is set.</span>
+                f<span class="token punctuation">.</span><span class="token function">Write</span><span class="token punctuation">(</span>trace<span class="token punctuation">)</span>
+            <span class="token punctuation">}</span>
+        <span class="token punctuation">}</span>
+        l<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token function">timeoutFlush</span><span class="token punctuation">(</span><span class="token number">10</span> <span class="token operator">*</span> time<span class="token punctuation">.</span>Second<span class="token punctuation">)</span>
+        os<span class="token punctuation">.</span><span class="token function">Exit</span><span class="token punctuation">(</span><span class="token number">255</span><span class="token punctuation">)</span> <span class="token comment" spellcheck="true">// C++ uses -1, which is silly because it's anded with 255 anyway.</span>
+    <span class="token punctuation">}</span>
+    l<span class="token punctuation">.</span><span class="token function">putBuffer</span><span class="token punctuation">(</span>buf<span class="token punctuation">)</span>
+    l<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+    <span class="token keyword">if</span> stats <span class="token operator">:=</span> severityStats<span class="token punctuation">[</span>s<span class="token punctuation">]</span><span class="token punctuation">;</span> stats <span class="token operator">!=</span> <span class="token boolean">nil</span> <span class="token punctuation">{</span>
+        atomic<span class="token punctuation">.</span><span class="token function">AddInt64</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>stats<span class="token punctuation">.</span>lines<span class="token punctuation">,</span> <span class="token number">1</span><span class="token punctuation">)</span>
+        atomic<span class="token punctuation">.</span><span class="token function">AddInt64</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>stats<span class="token punctuation">.</span>bytes<span class="token punctuation">,</span> <span class="token function">int64</span><span class="token punctuation">(</span><span class="token function">len</span><span class="token punctuation">(</span>data<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h2 id="vLog"><a href="#vLog" class="headerlink" title="vLog"></a>vLog</h2><p>vLog是用户自定义的log级别，与glog自带的log级别完全独立，使log等级控制更加丰富，灵活。 不过只提供<code>Info()</code>，<code>Infof()</code>和<code>Infoln()</code>三个方法，因此只能对infoLog进行更细粒度的等级划分，可以认为是补充DEBUG等级。</p>
+<p>使用方法很简单，有如下两种等价形式。虽然第二种简短，不过第一种代价更低。</p>
+<pre class="line-numbers language-go"><code class="language-go"><span class="token keyword">if</span> glog<span class="token punctuation">.</span><span class="token function">V</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    glog<span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span><span class="token string">"log this"</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+<span class="token comment" spellcheck="true">// Equals</span>
+glog<span class="token punctuation">.</span><span class="token function">V</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">Info</span><span class="token punctuation">(</span><span class="token string">"log this"</span><span class="token punctuation">)</span>
+<span class="token string">``</span>
+
+vLog的实现原理也很简单：
+
+<span class="token string">``</span>`<span class="token keyword">go</span>
+<span class="token operator">/</span> Verbose is a boolean <span class="token keyword">type</span> that implements <span class="token function">Infof</span> <span class="token punctuation">(</span>like Printf<span class="token punctuation">)</span> etc<span class="token punctuation">.</span>
+<span class="token comment" spellcheck="true">// See the documentation of V for more information.</span>
+<span class="token keyword">type</span> Verbose <span class="token builtin">bool</span>
+
+<span class="token keyword">func</span> <span class="token function">V</span><span class="token punctuation">(</span>level Level<span class="token punctuation">)</span> Verbose <span class="token punctuation">{</span>
+    <span class="token comment" spellcheck="true">// Here is a cheap but safe test to see if V logging is enabled globally.</span>
+    <span class="token keyword">if</span> logging<span class="token punctuation">.</span>verbosity<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">>=</span> level <span class="token punctuation">{</span>
+        <span class="token keyword">return</span> <span class="token function">Verbose</span><span class="token punctuation">(</span><span class="token boolean">true</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+
+    <span class="token keyword">if</span> atomic<span class="token punctuation">.</span><span class="token function">LoadInt32</span><span class="token punctuation">(</span><span class="token operator">&amp;</span>logging<span class="token punctuation">.</span>filterLength<span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span> <span class="token punctuation">{</span>
+        logging<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Lock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">defer</span> logging<span class="token punctuation">.</span>mu<span class="token punctuation">.</span><span class="token function">Unlock</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
+        <span class="token keyword">if</span> runtime<span class="token punctuation">.</span><span class="token function">Callers</span><span class="token punctuation">(</span><span class="token number">2</span><span class="token punctuation">,</span> logging<span class="token punctuation">.</span>pcs<span class="token punctuation">[</span><span class="token punctuation">:</span><span class="token punctuation">]</span><span class="token punctuation">)</span> <span class="token operator">==</span> <span class="token number">0</span> <span class="token punctuation">{</span>
+            <span class="token keyword">return</span> <span class="token function">Verbose</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        v<span class="token punctuation">,</span> ok <span class="token operator">:=</span> logging<span class="token punctuation">.</span>vmap<span class="token punctuation">[</span>logging<span class="token punctuation">.</span>pcs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">]</span>
+        <span class="token keyword">if</span> <span class="token operator">!</span>ok <span class="token punctuation">{</span>
+            v <span class="token operator">=</span> logging<span class="token punctuation">.</span><span class="token function">setV</span><span class="token punctuation">(</span>logging<span class="token punctuation">.</span>pcs<span class="token punctuation">[</span><span class="token number">0</span><span class="token punctuation">]</span><span class="token punctuation">)</span>
+        <span class="token punctuation">}</span>
+        <span class="token keyword">return</span> <span class="token function">Verbose</span><span class="token punctuation">(</span>v <span class="token operator">>=</span> level<span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+    <span class="token keyword">return</span> <span class="token function">Verbose</span><span class="token punctuation">(</span><span class="token boolean">false</span><span class="token punctuation">)</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Info is equivalent to the global Info function, guarded by the value of v.</span>
+<span class="token comment" spellcheck="true">// See the documentation of V for usage.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>v Verbose<span class="token punctuation">)</span> <span class="token function">Info</span><span class="token punctuation">(</span>args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> v <span class="token punctuation">{</span>
+        logging<span class="token punctuation">.</span><span class="token function">print</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Infoln is equivalent to the global Infoln function, guarded by the value of v.</span>
+<span class="token comment" spellcheck="true">// See the documentation of V for usage.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>v Verbose<span class="token punctuation">)</span> <span class="token function">Infoln</span><span class="token punctuation">(</span>args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> v <span class="token punctuation">{</span>
+        logging<span class="token punctuation">.</span><span class="token function">println</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span>
+
+<span class="token comment" spellcheck="true">// Infof is equivalent to the global Infof function, guarded by the value of v.</span>
+<span class="token comment" spellcheck="true">// See the documentation of V for usage.</span>
+<span class="token keyword">func</span> <span class="token punctuation">(</span>v Verbose<span class="token punctuation">)</span> <span class="token function">Infof</span><span class="token punctuation">(</span>format <span class="token builtin">string</span><span class="token punctuation">,</span> args <span class="token operator">...</span><span class="token keyword">interface</span><span class="token punctuation">{</span><span class="token punctuation">}</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">if</span> v <span class="token punctuation">{</span>
+        logging<span class="token punctuation">.</span><span class="token function">printf</span><span class="token punctuation">(</span>infoLog<span class="token punctuation">,</span> format<span class="token punctuation">,</span> args<span class="token operator">...</span><span class="token punctuation">)</span>
+    <span class="token punctuation">}</span>
+<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="flag-Parse-问题"><a href="#flag-Parse-问题" class="headerlink" title="flag.Parse()问题"></a>flag.Parse()问题</h1><p>在引用klog的同事千万注意不能在引用glog，不然启动的时候会出错</p>
+<pre class="line-numbers language-shell"><code class="language-shell">panic: /tmp/___go_build_klog_go flag redefined: log_dir<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://bamboox.online" rel="external nofollow noreferrer">bamboo</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://bamboox.online/2019/10/01/k8s-klog/">https://bamboox.online/2019/10/01/k8s-klog/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="https://bamboox.online" target="_blank">bamboo</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/kubernetes/">
+                                    <span class="chip bg-color">kubernetes</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+
+<div id="article-share">
+    
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+
+    
+        <link rel="stylesheet" href="/libs/gitalk/gitalk.css">
+<link rel="stylesheet" href="/css/my-gitalk.css">
+
+<div class="card gitalk-card" data-aos="fade-up">
+    <div id="gitalk-container" class="card-content"></div>
+</div>
+
+<script src="/libs/gitalk/gitalk.min.js"></script>
+<script>
+    let gitalk = new Gitalk({
+        clientID: '0cfd35d68f98efe52eb1',
+        clientSecret: '6ae58adb6b7ddb21344bcc1d4440aea906d9c121',
+        repo: 'gitalk',
+        owner: 'bamboox',
+        admin: "bamboox",
+        // id: '2019-10-01T22-49-50',
+        id: location.pathname,
+        distractionFreeMode: false  // Facebook-like distraction free mode
+    });
+
+    gitalk.render('gitalk-container');
+</script>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
+            <div class="card">
+                <a href="/2019/10/01/k8s-klog/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="K8S日志库源码分析：klog">
+                        
+                        <span class="card-title">K8S日志库源码分析：klog</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            klog是K8S组件中基础的日志库,基于著名google开源C++日志库glog的golang版本，具有轻量级、简单、稳定和高效等特性
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-10-01
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/kubernetes-klog/" class="post-category">
+                                    kubernetes,klog
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/kubernetes/">
+                        <span class="chip bg-color">kubernetes</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2019/08/03/k8s-15-cun-chu-04/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/8.jpg" class="responsive-img" alt="k8s-csi 版本变化">
+                        
+                        <span class="card-title">k8s-csi 版本变化</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            kubernetes-csi 版本变化原文链接
+接口定义grpc pb
+changelogKubernetes 1.15
+New features:
+Volume capacity usage metrics
+
+
+New alpha fea
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-08-03
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/kubernetes/" class="post-category">
+                                    kubernetes
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/kubernetes/">
+                        <span class="chip bg-color">kubernetes</span>
+                    </a>
+                    
+                    <a href="/tags/csi/">
+                        <span class="chip bg-color">csi</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+    
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+
+<!-- 代码块折行 -->
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+    <footer class="page-footer bg-color">
+    <div class="container row center-align">
+        <div class="col s12 m8 l8 copy-right">
+            &copy; 2019 Bamboo. All Rights Reserved.
+
+            
+            &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;
+            <span class="white-color">52.4k</span>
+            
+
+            <br>
+            <span id="sitetime"></span>
+
+            
+            
+            <br>
+            
+            <span id="busuanzi_container_site_pv" style='display:none'>
+                <i class="fa fa-heart-o"></i>
+                本站总访问量 <span id="busuanzi_value_site_pv" class="white-color"></span>
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv" style='display:none'>
+                人次,&nbsp;访客数 <span id="busuanzi_value_site_uv" class="white-color"></span> 人.
+            </span>
+            
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/bamboox" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:bangbowan@gmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="tencent://AddContact/?fromId=50&fromSubId=1&subcmd=all&uin=892078604" class="tooltipped" target="_blank" data-tooltip="QQ联系我: 892078604" data-position="top" data-delay="50">
+        <i class="fab fa-qq"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+<!-- 不蒜子计数初始值纠正 -->
+<script>
+    $(document).ready(function () {
+
+        var int = setInterval(fixCount, 50);
+        var pvcountOffset = 80000;
+        var uvcountOffset = 20000;
+
+        function fixCount() {
+            if (document.getElementById("busuanzi_container_site_pv").style.display != "none") {
+                $("#busuanzi_value_site_pv").html(parseInt($("#busuanzi_value_site_pv").html()) + pvcountOffset);
+                clearInterval(int);
+            }
+            if ($("#busuanzi_container_site_pv").css("display") != "none") {
+                $("#busuanzi_value_site_uv").html(parseInt($("#busuanzi_value_site_uv").html()) + uvcountOffset); // 加上初始数据 
+                clearInterval(int);
+            }
+        }
+    });
+</script>
+
+<script language=javascript>
+    function siteTime() {
+        window.setTimeout("siteTime()", 1000);
+        var seconds = 1000;
+        var minutes = seconds * 60;
+        var hours = minutes * 60;
+        var days = hours * 24;
+        var years = days * 365;
+        var today = new Date();
+        var todayYear = today.getFullYear();
+        var todayMonth = today.getMonth() + 1;
+        var todayDate = today.getDate();
+        var todayHour = today.getHours();
+        var todayMinute = today.getMinutes();
+        var todaySecond = today.getSeconds();
+        /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+        year - 作为date对象的年份，为4位年份值
+        month - 0-11之间的整数，做为date对象的月份
+        day - 1-31之间的整数，做为date对象的天数
+        hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+        minutes - 0-59之间的整数，做为date对象的分钟数
+        seconds - 0-59之间的整数，做为date对象的秒数
+        microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+        var t1 = Date.UTC(2017, 09, 11, 00, 00, 00); //北京时间2018-2-13 00:00:00
+        var t2 = Date.UTC(todayYear, todayMonth, todayDate, todayHour, todayMinute, todaySecond);
+        var diff = t2 - t1;
+        var diffYears = Math.floor(diff / years);
+        var diffDays = Math.floor((diff / days) - diffYears * 365);
+        var diffHours = Math.floor((diff - (diffYears * 365 + diffDays) * days) / hours);
+        var diffMinutes = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours) / minutes);
+        var diffSeconds = Math.floor((diff - (diffYears * 365 + diffDays) * days - diffHours * hours - diffMinutes * minutes) / seconds);
+        document.getElementById("sitetime").innerHTML = "本站已运行 " + diffYears + " 年 " + diffDays + " 天 " + diffHours + " 小时 " + diffMinutes + " 分钟 " + diffSeconds + " 秒";
+    }/*因为建站时间还没有一年，就将之注释掉了。需要的可以取消*/
+    siteTime();
+</script>
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script src="/js/search.js"></script>
+<script type="text/javascript">
+$(function () {
+    searchFunc("/" + "search.xml", 'searchInput', 'searchResult');
+});
+</script>
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <!-- Baidu Analytics -->
+
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+    <script>
+        (function (i, s, o, g, r, a, m) {
+            i["DaoVoiceObject"] = r;
+            i[r] = i[r] || function () {
+                (i[r].q = i[r].q || []).push(arguments)
+            }, i[r].l = 1 * new Date();
+            a = s.createElement(o), m = s.getElementsByTagName(o)[0];
+            a.async = 1;
+            a.src = g;
+            a.charset = "utf-8";
+            m.parentNode.insertBefore(a, m)
+        })(window, document, "script", ('https:' == document.location.protocol ? 'https:' : 'http:') +
+            "//widget.daovoice.io/widget/6984b559.js", "daovoice")
+        daovoice('init', {
+            app_id: ""
+        });
+        daovoice('update');
+    </script>
+    
+
+    
+
+    
+
+    
+    <script type="text/javascript" src="/libs/background/ribbon-dynamic.js" async="async"></script>
+    
+    
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>
