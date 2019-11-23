@@ -4,8 +4,14 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="Python之Fabric模块, 个人笔记">
-    <meta name="description" content="简介Fabric是基于Python实现的SSH命令行工具，简化了SSH的应用程序部署及系统管理任务，它提供了系统基础的操作组件，可以实现本地或远程shell命令，包括：命令执行、文件上传、下载及完整执行日志输出等功能。Fabric在Para">
+    <meta name="keywords" content="go mod 私有仓库搭建, 个人笔记">
+    <meta name="description" content="Go 包管理
+godep
+govendor
+
+都有各自的优缺点,本次着重介绍go mod
+Go mod 使用go modules是 golang 1.11 新加的特性。现在1.12 已经发布了，是时候用起来了。Modules官方定义为：
+ ">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -13,7 +19,7 @@
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>Python之Fabric模块 | Bamboo&#39;s Blog</title>
+    <title>go mod 私有仓库搭建 | Bamboo&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -262,13 +268,13 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/22.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        Python之Fabric模块
+                        go mod 私有仓库搭建
                     </div>
                 </div>
             </div>
@@ -380,8 +386,8 @@
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/python/">
-                                <span class="chip bg-color">python</span>
+                            <a href="/tags/go/">
+                                <span class="chip bg-color">go</span>
                             </a>
                         
                     </div>
@@ -392,8 +398,8 @@
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/python/" class="post-category">
-                                python
+                            <a href="/categories/go-proxy-gomod-gitlab/" class="post-category">
+                                go,proxy,gomod,gitlab
                             </a>
                         
                     </div>
@@ -404,13 +410,13 @@
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2018-04-21
+                    2019-11-01
                 </div>
                 
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
-                    2019-11-19
+                    2019-11-23
                 </div>
                 
 
@@ -418,14 +424,14 @@
                     
                     <div class="info-break-policy">
                         <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        1.9k
+                        568
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        8 分
+                        2 分
                     </div>
                     
                 
@@ -441,168 +447,68 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h1><p>Fabric是基于Python实现的SSH命令行工具，简化了SSH的应用程序部署及系统管理任务，它提供了系统基础的操作组件，可以实现本地或远程shell命令，包括：命令执行、文件上传、下载及完整执行日志输出等功能。Fabric在Paramiko的基础上做了更高一层的封装，操作起来会更加简单。</p>
-<h2 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h2><p>fab [options] <command>[:arg1,arg2=val2,host=foo,hosts=’h1;h2’,…] …</p>
-<pre><code>-l     #显示定义好的任务函数名
--f     #指定fab入口文件，默认入口文件名为fabfile.py
--f     #指定网关（中转）设备，比如堡垒机环境，填写堡垒机IP即可
--H     #指定目标主机，多台主机用‘,’号分隔
--p     #远程账号的密码，fab执行时默认使用root账户
--P     #以异步并行方式运行多主机任务，默认为串行运行
--R     #指定role（角色），以角色名区分不同业务组设备
--t     #设置设备连接超时时间（秒）
--T     #设置远程主机命令执行超时时间（秒）
--w     #当命令执行失败，发出警告，而非默认中止任务。</code></pre><a id="more"></a>
+                <h1 id="Go-包管理"><a href="#Go-包管理" class="headerlink" title="Go 包管理"></a>Go 包管理</h1><ol>
+<li><code>godep</code></li>
+<li><code>govendor</code></li>
+</ol>
+<p>都有各自的优缺点,本次着重介绍go mod</p>
+<h1 id="Go-mod-使用"><a href="#Go-mod-使用" class="headerlink" title="Go mod 使用"></a>Go mod 使用</h1><p><code>go modules</code>是 golang 1.11 新加的特性。现在1.12 已经发布了，是时候用起来了。Modules官方定义为：</p>
+<p>   模块是相关Go包的集合。modules是源代码交换和版本控制的单元。 go命令直接支持使用modules，包括记录和解析对其他模块的依赖性。modules替换旧的基于GOPATH的方法来指定在给定构建中使用哪些源文件。</p>
+<p>Go mod 通过git获取github上项目资源，针对一些企业级项目很多情况下一些内部的SDK,TOOLS面临着无法直接require</p>
+<h1 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h1><h2 id="利用-replace"><a href="#利用-replace" class="headerlink" title="利用 replace"></a>利用 replace</h2><ol>
+<li>把需要引用的SDK导入到项目中，vendor或者其他目录</li>
+<li>go.mod require gitlab.xxx.com/csi/common v0.0.0</li>
+<li>go.mod replace gitlab.xxx.com/csi/common v0.0.0 -&gt; ./vendor/itlab.xxx.com/csi/common</li>
+</ol>
+<p>主要是利用gomod replace功能把本地文件引用进去，类似于java的maven导入本地jar包<br>不足： 多个项目需要重复执行</p>
+<h1 id="goproxy利器"><a href="#goproxy利器" class="headerlink" title="goproxy利器"></a>goproxy利器</h1><p>开源项目<a href="https://github.com/goproxyio/goproxy" target="_blank" rel="noopener">https://github.com/goproxyio/goproxy</a></p>
+<pre><code>                                         direct
+                      +----------------------------------&gt; private repo
+                      |
+                 match|pattern
+                      |
+                  +---+---+           +----------+
+go get  +-------&gt; |goproxy| +-------&gt; |goproxy.io| +---&gt; golang.org/x/net
+                  +-------+           +----------+
+                 router mode           proxy mode</code></pre><h2 id="搭建内网goproxy"><a href="#搭建内网goproxy" class="headerlink" title="搭建内网goproxy"></a>搭建内网goproxy</h2><h3 id="比较重要的2个参数"><a href="#比较重要的2个参数" class="headerlink" title="比较重要的2个参数"></a>比较重要的2个参数</h3><ol>
+<li>proxy <a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a>  可以在配置一个goproxy可以用来获取被墙的package</li>
+<li>exclude gitlab.*.com 将 <code>direct</code>走内网服务</li>
+</ol>
+<h3 id="发现代理gitlab还有些不足"><a href="#发现代理gitlab还有些不足" class="headerlink" title="发现代理gitlab还有些不足"></a>发现代理gitlab还有些不足</h3><p>我们需要在这个container配置gitlab <code>~/.ssh/id_rsa.pub</code><br>还有一个重要的配置就是git</p>
+<h3 id="目的是将所有https转换出ssh"><a href="#目的是将所有https转换出ssh" class="headerlink" title="目的是将所有https转换出ssh"></a>目的是将所有https转换出ssh</h3><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">git</span> config --global url.git@gitlab.xxxx.com:.insteadOf https://gitlab.xxxx.com/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
+<h3 id="goproxy-修改"><a href="#goproxy-修改" class="headerlink" title="goproxy 修改"></a>goproxy 修改</h3><p>goproxy默认不支持 ssh</p>
+<p>只需要修改dockerfile即可</p>
+<p><a href="https://github.com/goproxyio/goproxy/blob/master/Dockerfile#L12" target="_blank" rel="noopener">https://github.com/goproxyio/goproxy/blob/master/Dockerfile#L12</a></p>
+<pre><code>FROM golang:alpine AS build
 
-<h3 id="简单实例"><a href="#简单实例" class="headerlink" title="简单实例"></a>简单实例</h3><p>编写一个fabfile.py文件<br>vim fabfile.py</p>
-<pre><code>#!/usr/bin/env python
-# -*- coding:utf-8 -*-
+RUN apk add --no-cache -U make git mercurial subversion bzr fossil
 
-from fabric.api import run
+COPY . /src/goproxy
+RUN cd /src/goproxy &amp;&amp;\
+    export CGO_ENABLED=0 &amp;&amp;\
+    make
 
-#定义一个任务函数，通过run方法实现远程执行‘uname -s’命令
-def host_type():   
-        run(&#39;uname -s&#39;)</code></pre><p>fab命令操作：</p>
-<pre><code>fab -H localhost host_type 
+FROM golang:alpine
 
-#结果：
-[localhost] Executing task &#39;host_type&#39;
-[localhost] run: uname -s
-[localhost] Login password for &#39;root&#39;: 
-[localhost] out: Linux
-[localhost] out: 
+RUN apk add --no-cache -U git mercurial subversion bzr fossil openssh-client #加入openssh-client
 
-Done.
-Disconnecting from localhost... done.</code></pre><p>上面实例也可以写成一行代码：</p>
-<pre><code>fab -p 123456 -H localhost  --  &#39;uname -s&#39;   #--后面要加空格</code></pre><h3 id="fabfile文件的编写"><a href="#fabfile文件的编写" class="headerlink" title="fabfile文件的编写"></a>fabfile文件的编写</h3><p>fab命令是结合fabfile.py文件（其他文件通过-f filename 参数来引用）来搭配使用的。fab的部分命令行参数还能通过相应的方法来代替</p>
-<pre><code>fab -H 192.168.1.21,192.168.1.22 ... ...
-#可以在fabfile.py文件中用env.hosts来实现，命令行中就可以不用写了
-#可以在fabfile中这么写：
-env.hosts = [&#39;192.168.1.21&#39;,&#39;192.168.1.22&#39;]</code></pre><h3 id="fabfile之env对象"><a href="#fabfile之env对象" class="headerlink" title="fabfile之env对象"></a>fabfile之env对象</h3><p>env对象的作用是定义fabfile的全局设定，就像上面的举例。下面对各属性进行说明：</p>
-<pre><code>env.hosts   #定义目标主机，可以用IP或主机名表示，以python的列表形式定义。如env.hosts=[&#39;192.168.1.21&#39;,&#39;192.168.1.22&#39;]
-env.exclude_hosts   #排除指定主机，如env.exclude_hosts=[&#39;192.168.1.21&#39;]
-env.user   #定义用户名，如env.user=&#39;root&#39;
-env.port   #定义端口，默认为22，如env.port=&#39;22&#39;
-env.password   #定义密码，如env.password=&#39;123456&#39;
-env.passwords  #定义多个密码，不同主机对应不同密码，如：env.passwords = {&#39;root@192.168.1.21:22&#39;:&#39;123456&#39;,&#39;root@192.168.1.22:22&#39;:&#39;654321&#39;}
-env.gateway   #定义网关（中转、堡垒机）IP，如env.gateway=&#39;192.168.1.23
-env.roledefs   #定义角色分组，比如web组合db组主机区分开来：env.roledefs = {&#39;webserver&#39;:[&#39;192.168.1.21&#39;,&#39;192.168.1.22&#39;],&#39;dbserver&#39;:[&#39;192.168.1.25&#39;,&#39;192.168.1.26&#39;]}
+COPY --from=build /src/goproxy/bin/goproxy /goproxy
 
-env.deploy_release_dir   #自定义全局变量，格式：env. + &#39;变量名称&#39;，如env.age,env.sex等</code></pre><h3 id="env-roledefs的使用方法实例"><a href="#env-roledefs的使用方法实例" class="headerlink" title="env.roledefs的使用方法实例"></a>env.roledefs的使用方法实例</h3><pre><code>env.roledefs = {&#39;webserver&#39;:[&#39;192.168.1.21&#39;,&#39;192.168.1.22&#39;],&#39;dbserver&#39;:[&#39;192.168.1.25&#39;,&#39;192.168.1.26&#39;]}
-#引用分组时使用python装饰器方式来进行,如：
-@roles(&#39;webserver&#39;)
-def webtask():
-    run(&#39;/usr/local/nginx/sbin/nginx&#39;)
+VOLUME /go
 
-@roles(&#39;webserver&#39;,&#39;dbserver&#39;)
-def publictask():
-    run(&#39;uptime&#39;)</code></pre><h2 id="Fabric常用API"><a href="#Fabric常用API" class="headerlink" title="Fabric常用API"></a>Fabric常用API</h2><pre><code>local    #执行本地命令，如local(&#39;uname -s&#39;)
-lcd      #切换本地目录，如lcd(&#39;/home&#39;)
-cd       #切换远程目录
-run     #执行远程命令
-sudo   #sudo方式执行远程命令，如sudo(&#39;/etc/init.d/httpd start&#39;)
-put     #上次本地文件导远程主机，如put(&#39;/home/user.info&#39;,&#39;/data/user.info&#39;)
-get     #从远程主机下载文件到本地，如：get(&#39;/data/user.info&#39;,&#39;/home/user.info&#39;)
-prompt  #获得用户输入信息，如：prompt(&#39;please input user password:&#39;)
-confirm  #获得提示信息确认，如：confirm(&#39;Test failed,Continue[Y/N]?&#39;)
-reboot   #重启远程主机，如：reboot()
+EXPOSE 8081
 
-@task   #函数修饰符，标识的函数为fab可调用的，非标记对fab不可见，纯业务逻辑
-@runs_once   #函数修饰符，标识的函数只会执行一次，不受多台主机影响</code></pre><h2 id="Fabric应用示例说明"><a href="#Fabric应用示例说明" class="headerlink" title="Fabric应用示例说明"></a>Fabric应用示例说明</h2><h3 id="查看本地与远程主机信息"><a href="#查看本地与远程主机信息" class="headerlink" title="查看本地与远程主机信息"></a>查看本地与远程主机信息</h3><p>本示例调用local方法执行本地命令，添加@runs_once修饰符保证任务函数只执行一次，调用run方法执行远程命令。</p>
-<pre><code>#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
+ENTRYPOINT [&quot;/goproxy&quot;]
+CMD []</code></pre><h3 id="重新编译"><a href="#重新编译" class="headerlink" title="重新编译"></a>重新编译</h3><p>docker build -t registry.cn-hangzhou.aliyuncs.com/bamboo/goproxy:1.0  .</p>
+<h3 id="启动goproxy"><a href="#启动goproxy" class="headerlink" title="启动goproxy"></a>启动goproxy</h3><pre><code>docker run -d -p80:8081 -v /root/.ssh/:/root/.ssh \
+ registry.cn-hangzhou.aliyuncs.com/bamboo/goproxy:1.0  \
+ -proxy https://goproxy.io 
+ -exclude &quot;gitlab.*.com&quot;</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>go get -u -v gitlab.xxx.com/csi/common</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<li><a href="https://segmentfault.com/a/1190000018536993" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018536993</a></li>
+<li><a href="https://github.com/golang/go/wiki/Modules" target="_blank" rel="noopener">https://github.com/golang/go/wiki/Modules</a></li>
+</ul>
 
-from fabric.api import *
-
-env.user = &#39;root&#39;
-env.hosts = [&#39;192.168.1.22&#39;]
-env.password = &#39;123456&#39;
-
-@runs_once   #查看本地系统信息，当有多台主机时只运行一次
-def local_task():   #本地任务函数
-    local(&#39;uname -a&#39;)
-
-def remote_task():
-    with cd(&#39;/var/logs&#39;):   #with的作用是让后面的表达式语句继承当前状态，实现：cd /var/logs  &amp;&amp; ls -l的效果
-        run(&#39;ls -l&#39;)
-
-simple1.py</code></pre><p>执行：</p>
-<pre><code>fab -f simple1.py local_task
-fab -f simple1.py remote_task</code></pre><h3 id="动态获取远程目录列表"><a href="#动态获取远程目录列表" class="headerlink" title="动态获取远程目录列表"></a>动态获取远程目录列表</h3><p>本例调用@task修饰符标志入口函数go()对外部可见，配合@runs_once修饰符接收用户输入，最后调用worktask()函数实现远程命令执行。</p>
-<pre><code>#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
-from fabric.api import *
-
-env.user = &#39;root&#39;
-env.hosts = [&#39;192.168.1.22&#39;]
-env.password = &#39;123456&#39;
-
-@runs_once   #主机遍历过程中，只有第一台触发此函数
-def input_raw():
-    return prompt(&#39;please input directoryname:&#39;,default=&#39;/root&#39;)
-
-def worktask(dirname):
-    run(&#39;ls -l&#39;+dirname)
-
-@task    #限定只有go函数对fab命令可见,其他没有使用@task标记的函数fab命令不可用
-def go():
-    getdirname = input_raw()
-    worktask(getdirname)
-
-simple2.py</code></pre><p>执行：</p>
-<pre><code>fab -f simple2.py go</code></pre><h3 id="网关模式文件上传与执行"><a href="#网关模式文件上传与执行" class="headerlink" title="网关模式文件上传与执行"></a>网关模式文件上传与执行</h3><p>本例通过定义env.gateway网关模式，即俗称的中转、堡垒机环境。通过网关对其他主机进行文件上传和执行。</p>
-<pre><code>#!/usr/bin/env python
-# -*- encoding: utf-8 -*-
-
-from fabric.api import *
-from fabric.context_managers import *
-from fabric.contrib.console import confirm
-
-env.user = &#39;root&#39;
-env.gateway = &#39;192.168.1.23&#39;   #定义堡垒机IP，作为文件上传、执行的中转设置
-env.hosts = [&#39;192.168.1.21&#39;,&#39;192.168.1.22&#39;]
-env.passwords = {
-    &#39;root@192.168.1.21:22&#39;:&#39;123456&#39;,
-    &#39;root@192.168.1.22:22&#39;:&#39;abcdef&#39;,
-    &#39;root@192.168.1.23:22&#39;:&#39;123abc&#39;,  #堡垒机账号信息
-}
-
-lpackpath = &#39;/home/install/lnmp.tar.gz&#39;   #本地安装包路径
-rpackpath = &#39;/tmp/install&#39;    #远程安装包路径
-
-
-@task
-def put_task():  #上传文件
-    run(&#39;mkdir -p /tmp/install&#39;)
-    #默认情况下，当命令执行失败时，Fabric会停止执行后续命令。有时，我们允许忽略失败的命令继续执行，比如run(‘rm /tmp/abc&#39;)在文件不存在的时候有可能失败，这时可以用with settings(warn_only=True):执行命令，这样Fabric只会打出警告信息而不会中断执行。
-    with settings(warn_only=True):
-        result = put(lpackpath,rpackpath)   #上传
-    if result.failed and not confirm(&#39;put file failed,Continue[Y/N]?&#39;):
-        abort(&#39;Aborting file put task!&#39;)
-
-@task
-def run_task():   #安装
-    with cd(&#39;/tmp/install&#39;):
-        run(&#39;tar -zxvf lnmp.tar.gz&#39;)
-        with cd(&#39;lnmp/&#39;):    #使用with继承/tmp/install目录位置状态
-            run(&#39;./centos.sh&#39;)
-
-
-@task
-def go():   #上传、安装组合命令
-    put_task()
-    run_task()
-
-simple3.py
-
-simple3.py</code></pre><p>执行：</p>
-<pre><code>#上传文件
-fab simple3.py put_task
-#执行文件
-fab simple3.py run_task
-#上传并执行
-fab simple3.py go</code></pre>
             </div>
             <hr/>
 
@@ -627,7 +533,7 @@ fab simple3.py go</code></pre>
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://bamboox.online/2018/04/21/python-fab/">https://bamboox.online/2018/04/21/python-fab/</a>
+                    <a href="https://bamboox.online/2019/11/01/go-mod-goproxy/">https://bamboox.online/2019/11/01/go-mod-goproxy/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -665,8 +571,8 @@ fab simple3.py go</code></pre>
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/python/">
-                                    <span class="chip bg-color">python</span>
+                                <a href="/tags/go/">
+                                    <span class="chip bg-color">go</span>
                                 </a>
                             
                         </div>
@@ -708,7 +614,7 @@ fab simple3.py go</code></pre>
         repo: 'gitalk',
         owner: 'bamboox',
         admin: "bamboox",
-        // id: '2018-04-21T22-49-50',
+        // id: '2019-11-01T21-39-50',
         id: location.pathname,
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
@@ -730,47 +636,48 @@ fab simple3.py go</code></pre>
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2019/01/01/k8s-install-part1/">
+                <a href="/2019/11/01/go-mod-goproxy/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/9.jpg" class="responsive-img" alt="k8s bootstrap by kind">
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="go mod 私有仓库搭建">
                         
-                        <span class="card-title">k8s bootstrap by kind</span>
+                        <span class="card-title">go mod 私有仓库搭建</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            快速开始kind is a tool for running local Kubernetes clusters using Docker container “nodes”.
-kind (k ubernetes in d ocker)ht
+                            搭建私网goproxy引用公司内部sdk,兼容gitlab
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2019-01-01
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-11-01
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/kubernetes/" class="post-category">
-                                    kubernetes
+                            <a href="/categories/go-proxy-gomod-gitlab/" class="post-category">
+                                    go,proxy,gomod,gitlab
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/kubernetes/">
-                        <span class="chip bg-color">kubernetes</span>
+                    <a href="/tags/go/">
+                        <span class="chip bg-color">go</span>
                     </a>
                     
                 </div>
@@ -784,31 +691,31 @@ kind (k ubernetes in d ocker)ht
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2018/04/21/grpclog-03/">
+                <a href="/2019/10/01/k8s-klog/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/5.jpg" class="responsive-img" alt="golang中context包解读">
+                        <img src="/medias/featureimages/19.jpg" class="responsive-img" alt="K8S日志库源码分析：klog">
                         
-                        <span class="card-title">golang中context包解读</span>
+                        <span class="card-title">K8S日志库源码分析：klog</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            context简单概述Go服务器的每个请求都有自己的goroutine,而有的请求为了提高性能，会经常启动额外的goroutine处理请求,当该请求被取消或超时，该请求上的所有goroutines应该退出，防止资源泄露。那么context来
+                            klog是K8S组件中基础的日志库,基于著名google开源C++日志库glog的golang版本，具有轻量级、简单、稳定和高效等特性
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2018-04-21
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-10-01
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/go/" class="post-category">
-                                    go
+                            <a href="/categories/kubernetes-klog/" class="post-category">
+                                    kubernetes,klog
                                 </a>
                             
                             
@@ -818,12 +725,8 @@ kind (k ubernetes in d ocker)ht
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/go/">
-                        <span class="chip bg-color">go</span>
-                    </a>
-                    
-                    <a href="/tags/sync/">
-                        <span class="chip bg-color">sync</span>
+                    <a href="/tags/kubernetes/">
+                        <span class="chip bg-color">kubernetes</span>
                     </a>
                     
                 </div>

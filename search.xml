@@ -4,6 +4,31 @@
   
     
     <entry>
+      <title>go mod 私有仓库搭建</title>
+      <link href="/2019/11/01/go-mod-goproxy/"/>
+      <url>/2019/11/01/go-mod-goproxy/</url>
+      
+        <content type="html"><![CDATA[<h1 id="Go-包管理"><a href="#Go-包管理" class="headerlink" title="Go 包管理"></a>Go 包管理</h1><ol><li><code>godep</code></li><li><code>govendor</code></li></ol><p>都有各自的优缺点,本次着重介绍go mod</p><h1 id="Go-mod-使用"><a href="#Go-mod-使用" class="headerlink" title="Go mod 使用"></a>Go mod 使用</h1><p><code>go modules</code>是 golang 1.11 新加的特性。现在1.12 已经发布了，是时候用起来了。Modules官方定义为：</p><p>   模块是相关Go包的集合。modules是源代码交换和版本控制的单元。 go命令直接支持使用modules，包括记录和解析对其他模块的依赖性。modules替换旧的基于GOPATH的方法来指定在给定构建中使用哪些源文件。</p><p>Go mod 通过git获取github上项目资源，针对一些企业级项目很多情况下一些内部的SDK,TOOLS面临着无法直接require</p><h1 id="解决办法"><a href="#解决办法" class="headerlink" title="解决办法"></a>解决办法</h1><h2 id="利用-replace"><a href="#利用-replace" class="headerlink" title="利用 replace"></a>利用 replace</h2><ol><li>把需要引用的SDK导入到项目中，vendor或者其他目录</li><li>go.mod require gitlab.xxx.com/csi/common v0.0.0</li><li>go.mod replace gitlab.xxx.com/csi/common v0.0.0 -&gt; ./vendor/itlab.xxx.com/csi/common</li></ol><p>主要是利用gomod replace功能把本地文件引用进去，类似于java的maven导入本地jar包<br>不足： 多个项目需要重复执行</p><h1 id="goproxy利器"><a href="#goproxy利器" class="headerlink" title="goproxy利器"></a>goproxy利器</h1><p>开源项目<a href="https://github.com/goproxyio/goproxy" target="_blank" rel="noopener">https://github.com/goproxyio/goproxy</a></p><pre><code>                                         direct                      +----------------------------------&gt; private repo                      |                 match|pattern                      |                  +---+---+           +----------+go get  +-------&gt; |goproxy| +-------&gt; |goproxy.io| +---&gt; golang.org/x/net                  +-------+           +----------+                 router mode           proxy mode</code></pre><h2 id="搭建内网goproxy"><a href="#搭建内网goproxy" class="headerlink" title="搭建内网goproxy"></a>搭建内网goproxy</h2><h3 id="比较重要的2个参数"><a href="#比较重要的2个参数" class="headerlink" title="比较重要的2个参数"></a>比较重要的2个参数</h3><ol><li>proxy <a href="https://goproxy.io" target="_blank" rel="noopener">https://goproxy.io</a>  可以在配置一个goproxy可以用来获取被墙的package</li><li>exclude gitlab.*.com 将 <code>direct</code>走内网服务</li></ol><h3 id="发现代理gitlab还有些不足"><a href="#发现代理gitlab还有些不足" class="headerlink" title="发现代理gitlab还有些不足"></a>发现代理gitlab还有些不足</h3><p>我们需要在这个container配置gitlab <code>~/.ssh/id_rsa.pub</code><br>还有一个重要的配置就是git</p><h3 id="目的是将所有https转换出ssh"><a href="#目的是将所有https转换出ssh" class="headerlink" title="目的是将所有https转换出ssh"></a>目的是将所有https转换出ssh</h3><pre class="line-numbers language-bash"><code class="language-bash"><span class="token function">git</span> config --global url.git@gitlab.xxxx.com:.insteadOf https://gitlab.xxxx.com/<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre><h3 id="goproxy-修改"><a href="#goproxy-修改" class="headerlink" title="goproxy 修改"></a>goproxy 修改</h3><p>goproxy默认不支持 ssh</p><p>只需要修改dockerfile即可</p><p><a href="https://github.com/goproxyio/goproxy/blob/master/Dockerfile#L12" target="_blank" rel="noopener">https://github.com/goproxyio/goproxy/blob/master/Dockerfile#L12</a></p><pre><code>FROM golang:alpine AS buildRUN apk add --no-cache -U make git mercurial subversion bzr fossilCOPY . /src/goproxyRUN cd /src/goproxy &amp;&amp;\    export CGO_ENABLED=0 &amp;&amp;\    makeFROM golang:alpineRUN apk add --no-cache -U git mercurial subversion bzr fossil openssh-client #加入openssh-clientCOPY --from=build /src/goproxy/bin/goproxy /goproxyVOLUME /goEXPOSE 8081ENTRYPOINT [&quot;/goproxy&quot;]CMD []</code></pre><h3 id="重新编译"><a href="#重新编译" class="headerlink" title="重新编译"></a>重新编译</h3><p>docker build -t registry.cn-hangzhou.aliyuncs.com/bamboo/goproxy:1.0  .</p><h3 id="启动goproxy"><a href="#启动goproxy" class="headerlink" title="启动goproxy"></a>启动goproxy</h3><pre><code>docker run -d -p80:8081 -v /root/.ssh/:/root/.ssh \ registry.cn-hangzhou.aliyuncs.com/bamboo/goproxy:1.0  \ -proxy https://goproxy.io  -exclude &quot;gitlab.*.com&quot;</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>go get -u -v gitlab.xxx.com/csi/common</p><h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul><li><a href="https://segmentfault.com/a/1190000018536993" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018536993</a></li><li><a href="https://github.com/golang/go/wiki/Modules" target="_blank" rel="noopener">https://github.com/golang/go/wiki/Modules</a></li></ul>]]></content>
+      
+      
+      <categories>
+          
+          <category> go,proxy,gomod,gitlab </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> go </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>K8S日志库源码分析：klog</title>
       <link href="/2019/10/01/k8s-klog/"/>
       <url>/2019/10/01/k8s-klog/</url>
