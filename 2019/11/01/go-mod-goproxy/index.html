@@ -416,7 +416,7 @@ Go mod 使用go modules是 golang 1.11 新加的特性。现在1.12 已经发布
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
-                    2019-11-23
+                    2019-11-24
                 </div>
                 
 
@@ -424,7 +424,7 @@ Go mod 使用go modules是 golang 1.11 新加的特性。现在1.12 已经发布
                     
                     <div class="info-break-policy">
                         <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        568
+                        629
                     </div>
                     
 
@@ -504,7 +504,14 @@ CMD []</code></pre><h3 id="重新编译"><a href="#重新编译" class="headerli
  registry.cn-hangzhou.aliyuncs.com/bamboo/goproxy:1.0  \
  -proxy https://goproxy.io 
  -exclude &quot;gitlab.*.com&quot;</code></pre><h3 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h3><p>go get -u -v gitlab.xxx.com/csi/common</p>
-<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
+<h3 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h3><p>Q: goprpxy无法代理gitlab<br>A: 进入容器内部执行</p>
+<pre><code>go env -w GOPROXY=https://goproxy.cn,direct
+go env -w GOPRIVATE=gitlab.*.com</code></pre><p>Q: goprpxy还是不能获取被墙的package<br>A: 检查go env</p>
+<pre><code>$ echo $GOPROXY
+https://goproxy.io
+$ echo $GO111MODULE
+on
+不符合就 export 设置一下</code></pre><h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ul>
 <li><a href="https://segmentfault.com/a/1190000018536993" target="_blank" rel="noopener">https://segmentfault.com/a/1190000018536993</a></li>
 <li><a href="https://github.com/golang/go/wiki/Modules" target="_blank" rel="noopener">https://github.com/golang/go/wiki/Modules</a></li>
 </ul>
@@ -865,7 +872,7 @@ CMD []</code></pre><h3 id="重新编译"><a href="#重新编译" class="headerli
 
             
             &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;
-            <span class="white-color">53k</span>
+            <span class="white-color">53.1k</span>
             
 
             <br>
