@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="https://bamboox.online/"/>
-  <updated>2020-03-28T17:55:25.934Z</updated>
+  <updated>2020-03-28T17:57:16.138Z</updated>
   <id>https://bamboox.online/</id>
   
   <author>
@@ -21,7 +21,7 @@
     <link href="https://bamboox.online/2020/03/28/ftp-on-k8s/"/>
     <id>https://bamboox.online/2020/03/28/ftp-on-k8s/</id>
     <published>2020-03-28T22:39:50.000Z</published>
-    <updated>2020-03-28T17:55:25.934Z</updated>
+    <updated>2020-03-28T17:57:16.138Z</updated>
     
     <content type="html"><![CDATA[<h1 id="ftp-image"><a href="#ftp-image" class="headerlink" title="ftp image"></a>ftp image</h1><p>vsftpd<br>具体参数参考<br><a href="https://github.com/fauria/docker-vsftpd" target="_blank" rel="noopener">https://github.com/fauria/docker-vsftpd</a></p><h2 id="FTP模式"><a href="#FTP模式" class="headerlink" title="FTP模式"></a>FTP模式</h2><p>FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式</p><ol><li>PORT（主动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路当需要传送数据时，客户端在命令链路上用PORT命令告诉服务器：我打开了XXXX端口，你过来连接我于是服务器从20端口向客户端的XXXX端口发送连接请求，建立一条数据链路来传送数据</li><li>PASV（被动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路当需要传送数据时，服务器在命令链路上用PASV命令告诉客户端：我打开了XXXX端口，你过来连接我于是客户端向服务器的XXXX端口发送连接请求，建立一条数据链路来传送数据</li></ol><blockquote><p>概括:</p></blockquote><ol><li>主动模式: 服务器向客户端敲门，然后客户端开门</li><li>被动模式: 客户端向服务器敲门，然后服务器开门</li></ol><h1 id="ftp-on-docker"><a href="#ftp-on-docker" class="headerlink" title="ftp on docker"></a>ftp on docker</h1><p>一般选用被动模式,服务端打开端口这样比较容易控制</p><pre class="line-numbers language-sh"><code class="language-sh">docker run -d -v /my/data/directory:/home/vsftpd \-p 20:20 -p 21:21 -p 21100-21110:21100-21110 \-e FTP_USER=myuser -e FTP_PASS=mypass -e PASV_ADDRESS_ENABLE=YES \-e PASV_ADDRESS=127.0.0.1 -e PASV_MIN_PORT=21100 -e PASV_MAX_PORT=21110 \--name vsftpd --restart=always fauria/vsftpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>测试</p><pre class="line-numbers language-sh"><code class="language-sh"> $ ftpftp> open localhostConnected to localhost.220 (vsFTPd 3.0.2)Name (localhost:bamboo): myuser331 Please specify the password.Password:230 Login successful.Remote system type is UNIX.Using binary mode to transfer files.ftp> ls /500 Illegal PORT command.ftp: bind: Address already in useftp> passive Passive mode on.ftp> ls /227 Entering Passive Mode (127,0,0,1,82,116).150 Here comes the directory listing.226 Directory send OK.ftp> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><h1 id="ftp-on-k8s"><a href="#ftp-on-k8s" class="headerlink" title="ftp on k8s"></a>ftp on k8s</h1><p>注意</p><ol><li>ftp 需要被动模式</li><li>k8s svc Headless(因为k8s kube proxy 转发不确定确定哪些端口是需要转发的，所有只能通过k8s dns 直接解析podIP, 而不是clusterIP)</li></ol><p>ftp deployment</p><pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> apps/v1beta1<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment<span class="token key atrule">metadata</span><span class="token punctuation">:</span>  <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token key atrule">spec</span><span class="token punctuation">:</span>  <span class="token comment" spellcheck="true">#replicas: 3</span>  <span class="token key atrule">template</span><span class="token punctuation">:</span>    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>      <span class="token key atrule">labels</span><span class="token punctuation">:</span>        <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp    <span class="token key atrule">spec</span><span class="token punctuation">:</span>      <span class="token key atrule">hostNetwork</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>      <span class="token key atrule">containers</span><span class="token punctuation">:</span>      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token punctuation">-</span>container        <span class="token key atrule">image</span><span class="token punctuation">:</span> fauria/vsftpd        <span class="token key atrule">imagePullPolicy</span><span class="token punctuation">:</span> Never        <span class="token key atrule">ports</span><span class="token punctuation">:</span>        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">21</span>          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP          <span class="token key atrule">name</span><span class="token punctuation">:</span> <span class="token string">"ftp-server"</span>        <span class="token key atrule">env</span><span class="token punctuation">:</span>        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> FTP_USER          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"myuser"</span>        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> FTP_PASS          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"mypass"</span>        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> PASV_MIN_PORT          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"21100"</span>        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> PASV_MAX_PORT          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"21110"</span>        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>        <span class="token punctuation">-</span> <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /home/vsftpd          <span class="token key atrule">name</span><span class="token punctuation">:</span> nfs<span class="token punctuation">-</span>volume      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> nfs<span class="token punctuation">-</span>volume        <span class="token key atrule">hostPath</span><span class="token punctuation">:</span>         <span class="token key atrule">path</span><span class="token punctuation">:</span> /data         <span class="token key atrule">type</span><span class="token punctuation">:</span> DirectoryOrCreate<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>ftp Service Headless</p><pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service<span class="token key atrule">metadata</span><span class="token punctuation">:</span>  <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token punctuation">-</span>service  <span class="token key atrule">labels</span><span class="token punctuation">:</span>    <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token key atrule">spec</span><span class="token punctuation">:</span>  <span class="token key atrule">type</span><span class="token punctuation">:</span> ClusterIP  <span class="token key atrule">clusterIP</span><span class="token punctuation">:</span> None  <span class="token key atrule">selector</span><span class="token punctuation">:</span>    <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre><p>test deploy</p><pre><code>apiVersion: apps/v1kind: Deploymentmetadata:  labels:    app: debug  name: debugspec:  replicas: 1  selector:    matchLabels:      app: debug  template:    metadata:      labels:        app: debug    spec:      #nodeSelector:      #  node-role.kubernetes.io/master: &quot;&quot;      containers:      - image: nicolaka/netshoot         name: netshoot        command: [ &quot;/bin/bash&quot;, &quot;-ce&quot;, &quot;tail -f /dev/null&quot; ]        imagePullPolicy: Never</code></pre><p>执行测试下载链接(手工在ftp目录创建一个文件)</p><pre><code>wget ftp://myuser:mypass@my-ftp-service/1</code></pre>]]></content>
     
@@ -254,32 +254,6 @@
   </entry>
   
   <entry>
-    <title>K8s PV、PVC、StorageClass</title>
-    <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/"/>
-    <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/</id>
-    <published>2019-02-15T22:49:50.000Z</published>
-    <updated>2019-11-19T15:40:25.014Z</updated>
-    
-    <content type="html"><![CDATA[<h1 id="PV、PVC、StorageClass"><a href="#PV、PVC、StorageClass" class="headerlink" title="PV、PVC、StorageClass"></a>PV、PVC、StorageClass</h1><h2 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h2><p>PV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。</p><p>通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集群里待用的。比如，运维人员可以定义这样一个 NFS 类型的 PV，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumemetadata:  name: nfsspec:  storageClassName: manual  capacity:    storage: 1Gi  accessModes:    - ReadWriteMany  nfs:    server: 10.244.1.4    path: &quot;/&quot;</code></pre><h2 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h2><p>而PVC 描述的，则是 Pod 所希望使用的持久化存储的属性。比如，Volume 存储的大小、可读写权限等等。</p><p>PVC 对象通常由开发人员创建；或者以 PVC 模板的方式成为 StatefulSet 的一部分，然后由 StatefulSet 控制器负责创建带编号的 PVC。</p><p>比如，开发人员可以声明一个 1 GiB 大小的 PVC，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumeClaimmetadata:  name: nfsspec:  accessModes:    - ReadWriteMany  storageClassName: manual  resources:    requests:      storage: 1Gi</code></pre><p>而用户创建的 PVC 要真正被容器使用起来，就必须先和某个符合条件的 PV 进行绑定。这里要检查的条件，包括两部分：</p><ol><li>第一个条件，当然是 PV 和 PVC 的 spec 字段。比如，PV 的存储（storage）大小，就必须满足 PVC 的要求。</li><li>第二个条件，则是 PV 和 PVC 的 storageClassName 字段必须一样。这个机制我会在本篇文章的最后一部分专门介绍。</li></ol><p>在成功地将 PVC 和 PV 进行绑定之后，Pod 就能够像使用 hostPath 等常规类型的 Volume 一样，在自己的 YAML 文件里声明使用这个 PVC 了，如下所示：</p><pre><code>apiVersion: v1kind: Podmetadata:  labels:    role: web-frontendspec:  containers:  - name: web    image: nginx    ports:      - name: web        containerPort: 80    volumeMounts:        - name: nfs          mountPath: &quot;/usr/share/nginx/html&quot;  volumes:  - name: nfs    persistentVolumeClaim:      claimName: nfs</code></pre><h2 id="StorageClass"><a href="#StorageClass" class="headerlink" title="StorageClass"></a>StorageClass</h2><p>StorageClass 的作用，则是充当 PV 的模板。并且，只有同属于一个 StorageClass 的 PV 和 PVC，才可以绑定在一起。</p><p>StorageClass 的另一个重要作用，是指定 PV 的 Provisioner（存储插件）。这时候，如果你的存储插件支持 Dynamic Provisioning 的话，Kubernetes 就可以自动为你创建 PV 了。</p>]]></content>
-    
-    <summary type="html">
-    
-      
-      
-        &lt;h1 id=&quot;PV、PVC、StorageClass&quot;&gt;&lt;a href=&quot;#PV、PVC、StorageClass&quot; class=&quot;headerlink&quot; title=&quot;PV、PVC、StorageClass&quot;&gt;&lt;/a&gt;PV、PVC、StorageClass&lt;/h1&gt;&lt;h2 i
-      
-    
-    </summary>
-    
-    
-      <category term="kubernetes" scheme="https://bamboox.online/categories/kubernetes/"/>
-    
-    
-      <category term="kubernetes" scheme="https://bamboox.online/tags/kubernetes/"/>
-    
-  </entry>
-  
-  <entry>
     <title>K8s CSI</title>
     <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/"/>
     <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/</id>
@@ -293,6 +267,32 @@
       
       
         &lt;h1 id=&quot;CSI开发&quot;&gt;&lt;a href=&quot;#CSI开发&quot; class=&quot;headerlink&quot; title=&quot;CSI开发&quot;&gt;&lt;/a&gt;CSI开发&lt;/h1&gt;&lt;h2 id=&quot;架构图&quot;&gt;&lt;a href=&quot;#架构图&quot; class=&quot;headerlink&quot; title=&quot;架构图&quot;&gt;&lt;/
+      
+    
+    </summary>
+    
+    
+      <category term="kubernetes" scheme="https://bamboox.online/categories/kubernetes/"/>
+    
+    
+      <category term="kubernetes" scheme="https://bamboox.online/tags/kubernetes/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>K8s PV、PVC、StorageClass</title>
+    <link href="https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/"/>
+    <id>https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/</id>
+    <published>2019-02-15T22:49:50.000Z</published>
+    <updated>2019-11-19T15:40:25.014Z</updated>
+    
+    <content type="html"><![CDATA[<h1 id="PV、PVC、StorageClass"><a href="#PV、PVC、StorageClass" class="headerlink" title="PV、PVC、StorageClass"></a>PV、PVC、StorageClass</h1><h2 id="pv"><a href="#pv" class="headerlink" title="pv"></a>pv</h2><p>PV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。</p><p>通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集群里待用的。比如，运维人员可以定义这样一个 NFS 类型的 PV，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumemetadata:  name: nfsspec:  storageClassName: manual  capacity:    storage: 1Gi  accessModes:    - ReadWriteMany  nfs:    server: 10.244.1.4    path: &quot;/&quot;</code></pre><h2 id="pvc"><a href="#pvc" class="headerlink" title="pvc"></a>pvc</h2><p>而PVC 描述的，则是 Pod 所希望使用的持久化存储的属性。比如，Volume 存储的大小、可读写权限等等。</p><p>PVC 对象通常由开发人员创建；或者以 PVC 模板的方式成为 StatefulSet 的一部分，然后由 StatefulSet 控制器负责创建带编号的 PVC。</p><p>比如，开发人员可以声明一个 1 GiB 大小的 PVC，如下所示：</p><pre><code>apiVersion: v1kind: PersistentVolumeClaimmetadata:  name: nfsspec:  accessModes:    - ReadWriteMany  storageClassName: manual  resources:    requests:      storage: 1Gi</code></pre><p>而用户创建的 PVC 要真正被容器使用起来，就必须先和某个符合条件的 PV 进行绑定。这里要检查的条件，包括两部分：</p><ol><li>第一个条件，当然是 PV 和 PVC 的 spec 字段。比如，PV 的存储（storage）大小，就必须满足 PVC 的要求。</li><li>第二个条件，则是 PV 和 PVC 的 storageClassName 字段必须一样。这个机制我会在本篇文章的最后一部分专门介绍。</li></ol><p>在成功地将 PVC 和 PV 进行绑定之后，Pod 就能够像使用 hostPath 等常规类型的 Volume 一样，在自己的 YAML 文件里声明使用这个 PVC 了，如下所示：</p><pre><code>apiVersion: v1kind: Podmetadata:  labels:    role: web-frontendspec:  containers:  - name: web    image: nginx    ports:      - name: web        containerPort: 80    volumeMounts:        - name: nfs          mountPath: &quot;/usr/share/nginx/html&quot;  volumes:  - name: nfs    persistentVolumeClaim:      claimName: nfs</code></pre><h2 id="StorageClass"><a href="#StorageClass" class="headerlink" title="StorageClass"></a>StorageClass</h2><p>StorageClass 的作用，则是充当 PV 的模板。并且，只有同属于一个 StorageClass 的 PV 和 PVC，才可以绑定在一起。</p><p>StorageClass 的另一个重要作用，是指定 PV 的 Provisioner（存储插件）。这时候，如果你的存储插件支持 Dynamic Provisioning 的话，Kubernetes 就可以自动为你创建 PV 了。</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h1 id=&quot;PV、PVC、StorageClass&quot;&gt;&lt;a href=&quot;#PV、PVC、StorageClass&quot; class=&quot;headerlink&quot; title=&quot;PV、PVC、StorageClass&quot;&gt;&lt;/a&gt;PV、PVC、StorageClass&lt;/h1&gt;&lt;h2 i
       
     
     </summary>
