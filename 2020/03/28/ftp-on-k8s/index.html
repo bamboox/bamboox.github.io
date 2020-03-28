@@ -4,10 +4,15 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="ETCD Operator, 个人笔记">
-    <meta name="description" content="ETCD Operator 在 Kuernetes 生态中，Operator可以更加灵活和编程友好的管理“有状态应用”的 比如 数据库
-快速试用https://github.com/coreos/etcd-operator
-$ git cl">
+    <meta name="keywords" content="在k8s上部署ftp, 个人笔记">
+    <meta name="description" content="ftp image
+vsftpd
+
+具体参数参考
+https://github.com/fauria/docker-vsftpd
+FTP模式FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式
+
+PORT（主动）方">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -15,7 +20,7 @@ $ git cl">
     <meta name="format-detection" content="telephone=no">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>ETCD Operator | Bamboo&#39;s Blog</title>
+    <title>在k8s上部署ftp | Bamboo&#39;s Blog</title>
     <link rel="icon" type="image/png" href="/favicon.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -264,13 +269,13 @@ $ git cl">
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/12.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
                     <div class="description center-align post-title">
-                        ETCD Operator
+                        在k8s上部署ftp
                     </div>
                 </div>
             </div>
@@ -382,8 +387,8 @@ $ git cl">
                     
                     <div class="article-tag">
                         
-                            <a href="/tags/kubernetes/">
-                                <span class="chip bg-color">kubernetes</span>
+                            <a href="/tags/go/">
+                                <span class="chip bg-color">go</span>
                             </a>
                         
                     </div>
@@ -394,8 +399,8 @@ $ git cl">
                     <div class="post-cate">
                         <i class="fas fa-bookmark fa-fw icon-category"></i>
                         
-                            <a href="/categories/kubernetes/" class="post-category">
-                                kubernetes
+                            <a href="/categories/ftp-k8s/" class="post-category">
+                                ftp,k8s
                             </a>
                         
                     </div>
@@ -406,28 +411,23 @@ $ git cl">
             <div class="post-info">
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
-                    2019-02-02
+                    2020-03-28
                 </div>
                 
-                
-                <div class="post-date info-break-policy">
-                    <i class="far fa-calendar-check fa-fw"></i>更新日期:&nbsp;&nbsp;
-                    2019-11-19
-                </div>
                 
 
                 
                     
                     <div class="info-break-policy">
                         <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        2.2k
+                        714
                     </div>
                     
 
                     
                     <div class="info-break-policy">
                         <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        9 分
+                        3 分
                     </div>
                     
                 
@@ -443,184 +443,130 @@ $ git cl">
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="ETCD-Operator"><a href="#ETCD-Operator" class="headerlink" title="ETCD Operator"></a>ETCD Operator</h1><p> 在 Kuernetes 生态中，Operator可以更加灵活和编程友好的管理“有状态应用”的 比如 数据库</p>
-<h1 id="快速试用"><a href="#快速试用" class="headerlink" title="快速试用"></a>快速试用</h1><p><a href="https://github.com/coreos/etcd-operator" target="_blank" rel="noopener">https://github.com/coreos/etcd-operator</a></p>
-<pre><code>$ git clone https://github.com/coreos/etcd-operator
-$ example/rbac/create_role.sh</code></pre><p>这个脚本的作用，就是为 Etcd Operator 创建 RBAC 规则。这是因为，Etcd Operator 需要访问 Kubernetes 的 APIServer 来创建对象</p>
-<ol>
-<li>对 Pod、Service、PVC、Deployment、Secret 等 API 对象，有所有权限；</li>
-<li>对 CRD 对象，有所有权限；</li>
-<li>对属于 etcd.database.coreos.com 这个 API Group 的 CR（Custom Resource）对象，有所有权限。</li>
+                <h1 id="ftp-image"><a href="#ftp-image" class="headerlink" title="ftp image"></a>ftp image</h1><ol>
+<li>vsftpd</li>
 </ol>
-<p>而 Etcd Operator 本身，其实就是一个 Deployment，它的 YAML 文件如下所示：</p>
-<pre><code>apiVersion: extensions/v1beta1
+<p>具体参数参考</p>
+<p><a href="https://github.com/fauria/docker-vsftpd" target="_blank" rel="noopener">https://github.com/fauria/docker-vsftpd</a></p>
+<h2 id="FTP模式"><a href="#FTP模式" class="headerlink" title="FTP模式"></a>FTP模式</h2><p>FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式</p>
+<ol>
+<li><p>PORT（主动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路当需要传送数据时，客户端在命令链路上用PORT命令告诉服务器：我打开了XXXX端口，你过来连接我于是服务器从20端口向客户端的XXXX端口发送连接请求，建立一条数据链路来传送数据</p>
+</li>
+<li><p>PASV（被动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路当需要传送数据时，服务器在命令链路上用PASV命令告诉客户端：我打开了XXXX端口，你过来连接我于是客户端向服务器的XXXX端口发送连接请求，建立一条数据链路来传送数据</p>
+</li>
+</ol>
+<p>概括</p>
+<ol>
+<li>主动模式: 服务器向客户端敲门，然后客户端开门</li>
+<li>被动模式: 客户端向服务器敲门，然后服务器开门</li>
+</ol>
+<h1 id="ftp-on-docker"><a href="#ftp-on-docker" class="headerlink" title="ftp on docker"></a>ftp on docker</h1><p>一般选用被动模式,服务端打开端口这样比较容易控制</p>
+<pre class="line-numbers language-sh"><code class="language-sh">docker run -d -v /my/data/directory:/home/vsftpd \
+-p 20:20 -p 21:21 -p 21100-21110:21100-21110 \
+-e FTP_USER=myuser -e FTP_PASS=mypass -e PASV_ADDRESS_ENABLE=YES \
+-e PASV_ADDRESS=127.0.0.1 -e PASV_MIN_PORT=21100 -e PASV_MAX_PORT=21110 \
+--name vsftpd --restart=always fauria/vsftpd<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>测试</p>
+<pre class="line-numbers language-sh"><code class="language-sh"> $ ftp
+ftp> open localhost
+Connected to localhost.
+220 (vsFTPd 3.0.2)
+Name (localhost:bamboo): myuser
+331 Please specify the password.
+Password:
+230 Login successful.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> ls /
+500 Illegal PORT command.
+ftp: bind: Address already in use
+ftp> passive 
+Passive mode on.
+ftp> ls /
+227 Entering Passive Mode (127,0,0,1,82,116).
+150 Here comes the directory listing.
+226 Directory send OK.
+ftp> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h1 id="ftp-on-k8s"><a href="#ftp-on-k8s" class="headerlink" title="ftp on k8s"></a>ftp on k8s</h1><p>注意</p>
+<ol>
+<li>ftp 需要被动模式</li>
+<li>k8s svc Headless(因为k8s kube proxy 转发不确定确定哪些端口是需要转发的，所有只能通过k8s dns 直接解析podIP, 而不是clusterIP)</li>
+</ol>
+<p>ftp deployment</p>
+<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> apps/v1beta1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Deployment
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token comment" spellcheck="true">#replicas: 3</span>
+  <span class="token key atrule">template</span><span class="token punctuation">:</span>
+    <span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+      <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+        <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp
+    <span class="token key atrule">spec</span><span class="token punctuation">:</span>
+      <span class="token key atrule">hostNetwork</span><span class="token punctuation">:</span> <span class="token boolean important">true</span>
+      <span class="token key atrule">containers</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token punctuation">-</span>container
+        <span class="token key atrule">image</span><span class="token punctuation">:</span> fauria/vsftpd
+        <span class="token key atrule">imagePullPolicy</span><span class="token punctuation">:</span> Never
+        <span class="token key atrule">ports</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">containerPort</span><span class="token punctuation">:</span> <span class="token number">21</span>
+          <span class="token key atrule">protocol</span><span class="token punctuation">:</span> TCP
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> <span class="token string">"ftp-server"</span>
+        <span class="token key atrule">env</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> FTP_USER
+          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"myuser"</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> FTP_PASS
+          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"mypass"</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> PASV_MIN_PORT
+          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"21100"</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> PASV_MAX_PORT
+          <span class="token key atrule">value</span><span class="token punctuation">:</span> <span class="token string">"21110"</span>
+        <span class="token key atrule">volumeMounts</span><span class="token punctuation">:</span>
+        <span class="token punctuation">-</span> <span class="token key atrule">mountPath</span><span class="token punctuation">:</span> /home/vsftpd
+          <span class="token key atrule">name</span><span class="token punctuation">:</span> nfs<span class="token punctuation">-</span>volume
+      <span class="token key atrule">volumes</span><span class="token punctuation">:</span>
+      <span class="token punctuation">-</span> <span class="token key atrule">name</span><span class="token punctuation">:</span> nfs<span class="token punctuation">-</span>volume
+        <span class="token key atrule">hostPath</span><span class="token punctuation">:</span>
+         <span class="token key atrule">path</span><span class="token punctuation">:</span> /data
+         <span class="token key atrule">type</span><span class="token punctuation">:</span> DirectoryOrCreate<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>ftp Service Headless</p>
+<pre class="line-numbers language-yaml"><code class="language-yaml"><span class="token key atrule">apiVersion</span><span class="token punctuation">:</span> v1
+<span class="token key atrule">kind</span><span class="token punctuation">:</span> Service
+<span class="token key atrule">metadata</span><span class="token punctuation">:</span>
+  <span class="token key atrule">name</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span class="token punctuation">-</span>service
+  <span class="token key atrule">labels</span><span class="token punctuation">:</span>
+    <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp
+<span class="token key atrule">spec</span><span class="token punctuation">:</span>
+  <span class="token key atrule">type</span><span class="token punctuation">:</span> ClusterIP
+  <span class="token key atrule">clusterIP</span><span class="token punctuation">:</span> None
+  <span class="token key atrule">selector</span><span class="token punctuation">:</span>
+    <span class="token key atrule">app</span><span class="token punctuation">:</span> my<span class="token punctuation">-</span>ftp<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<p>test deploy</p>
+<pre><code>apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: etcd-operator
+  labels:
+    app: debug
+  name: debug
 spec:
   replicas: 1
+  selector:
+    matchLabels:
+      app: debug
   template:
     metadata:
       labels:
-        name: etcd-operator
+        app: debug
     spec:
+      #nodeSelector:
+      #  node-role.kubernetes.io/master: &quot;&quot;
       containers:
-      - name: etcd-operator
-        image: quay.io/coreos/etcd-operator:v0.9.4
-        command:
-        - etcd-operator
-        # Uncomment to act for resources in all namespaces. More information in doc/user/clusterwide.md
-        #- -cluster-wide
-        env:
-        - name: MY_POD_NAMESPACE
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.namespace
-        - name: MY_POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name</code></pre><pre><code>$ kubectl get pods
-NAME                              READY     STATUS      RESTARTS   AGE
-etcd-operator-649dbdb5cb-bzfzp    1/1       Running     0          20s
-
-$ kubectl get crd
-NAME                                    CREATED AT
-etcdclusters.etcd.database.coreos.com   2019-03-01T18:42:55Z</code></pre><p>这个 CRD 名叫etcdclusters.etcd.database.coreos.com 。你可以通过 kubectl describe 命令看到它的细节，如下所示：</p>
-<pre><code>$ kubectl describe crd  etcdclusters.etcd.database.coreos.com
-...
-Group:   etcd.database.coreos.com
-  Names:
-    Kind:       EtcdCluster
-    List Kind:  EtcdClusterList
-    Plural:     etcdclusters
-    Short Names:
-      etcd
-    Singular:  etcdcluster
-  Scope:       Namespaced
-  Version:     v1beta2
-
-...</code></pre><p>通过上述步骤创建 etcd.database.coreos.com API 组（Group）<br>如果有API 资源类型（Kind）是“EtcdCluster”的 YAML 文件被提交上来 K8s将会识别</p>
-<p>提交 EtcdCluster</p>
-<pre><code>$ kubectl apply -f example/example-etcd-cluster.yaml
-
-$ kubectl get pods
-NAME                            READY     STATUS    RESTARTS   AGE
-example-etcd-cluster-dp8nqtjznc   1/1       Running     0          1m
-example-etcd-cluster-mbzlg6sd56   1/1       Running     0          2m
-example-etcd-cluster-v6v6s6stxd   1/1       Running     0          2m
-</code></pre><h2 id="example-etcd-如果被创建出来"><a href="#example-etcd-如果被创建出来" class="headerlink" title="example-etcd 如果被创建出来"></a>example-etcd 如果被创建出来</h2><p>Operator 的工作原理，实际上是利用了 Kubernetes 的自定义 API 资源（CRD），来描述想要部署的“有状态应用”；然后在自定义控制器里，根据自定义 API 对象的变化，来完成具体的部署和运维工作。</p>
-<p>Etcd Operator 部署 Etcd 集群，采用的是静态集群（Static）的方式。</p>
-<p>静态集群的好处是，它不必依赖于一个额外的服务发现机制来组建集群，非常适合本地容器化部署。而它的难点，则在于你必须在部署的时候，就规划好这个集群的拓扑结构，并且能够知道这些节点固定的 IP 地址。比如下面这个例子：</p>
-<pre><code>$ etcd --name infra0 --initial-advertise-peer-urls http://10.0.1.10:2380 \
-  --listen-peer-urls http://10.0.1.10:2380 \
-...
-  --initial-cluster-token etcd-cluster-1 \
-  --initial-cluster infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380,infra2=http://10.0.1.12:2380 \
-  --initial-cluster-state new
-
-$ etcd --name infra1 --initial-advertise-peer-urls http://10.0.1.11:2380 \
-  --listen-peer-urls http://10.0.1.11:2380 \
-...
-  --initial-cluster-token etcd-cluster-1 \
-  --initial-cluster infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380,infra2=http://10.0.1.12:2380 \
-  --initial-cluster-state new
-
-$ etcd --name infra2 --initial-advertise-peer-urls http://10.0.1.12:2380 \
-  --listen-peer-urls http://10.0.1.12:2380 \
-...
-  --initial-cluster-token etcd-cluster-1 \
-  --initial-cluster infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380,infra2=http://10.0.1.12:2380 \
-  --initial-cluster-state new</code></pre><p>在这个例子中，启动了三个 Etcd 进程，组成了一个三节点的 Etcd 集群。</p>
-<p>其中，这些节点启动参数里的–initial-cluster 参数，非常值得你关注。它的含义，正是当前节点启动时集群的拓扑结构。说得更详细一点，就是当前这个节点启动时，需要跟哪些节点通信来组成集群。</p>
-<h1 id="Etcd-集群创建分析"><a href="#Etcd-集群创建分析" class="headerlink" title="Etcd 集群创建分析"></a>Etcd 集群创建分析</h1><p>EtcdCluster 这个 CRD 的定义，它对应的 types.go 文件的主要内容，如下所示：</p>
-<pre><code>// +genclient
-// +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
-
-type EtcdCluster struct {
-  metav1.TypeMeta   `json:&quot;,inline&quot;`
-  metav1.ObjectMeta `json:&quot;metadata,omitempty&quot;`
-  Spec              ClusterSpec   `json:&quot;spec&quot;`
-  Status            ClusterStatus `json:&quot;status&quot;`
-}
-
-type ClusterSpec struct {
- // Size is the expected size of the etcd cluster.
- // The etcd-operator will eventually make the size of the running
- // cluster equal to the expected size.
- // The vaild range of the size is from 1 to 7.
- Size int `json:&quot;size&quot;`
- ... 
-}</code></pre><p>可以看到，EtcdCluster 是一个有 Status 字段的 CRD。在这里，可以不必关心 ClusterSpec 里的其他字段，只关注 Size（即：Etcd 集群的大小）字段即可。</p>
-<p>Size 字段的存在，就意味着将来如果想要调整集群大小的话，应该直接修改 YAML 文件里 size 的值，并执行 kubectl apply -f。</p>
-<p>这样，Operator 就会完成 Etcd 节点的增删操作。这种“scale”能力，也是 Etcd Operator 自动化运维 Etcd 集群需要实现的主要功能。</p>
-<p>而为了能够支持这个功能，不再像前面那样在–initial-cluster 参数里把拓扑结构固定死。</p>
-<p>所以，Etcd Operator 的实现，虽然选择的也是静态集群，但这个集群具体的组建过程，是逐个节点动态添加的方式，即：<br>首先，Etcd Operator 会创建一个“种子节点”；<br>然后，Etcd Operator 会不断创建新的 Etcd 节点，然后将它们逐一加入到这个集群当中，直到集群的节点数等于 size。</p>
-<p>ETCDOperator创建集群可以分为俩个步骤</p>
-<ol>
-<li><p>Bootstrap<br>infra0 节点为例，它的 IP 地址是 10.0.1.10，那么 Etcd Operator 生成的种子节点的启动命令，如下所示：</p>
-<pre><code>$ etcd
---data-dir=/var/etcd/data
---name=infra0
---initial-advertise-peer-urls=http://10.0.1.10:2380
---listen-peer-urls=http://0.0.0.0:2380
---listen-client-urls=http://0.0.0.0:2379
---advertise-client-urls=http://10.0.1.10:2379
---initial-cluster=infra0=http://10.0.1.10:2380
---initial-cluster-state=new
---initial-cluster-token=4b5215fa-5401-4a95-a8c6-892317c9bef8  </code></pre><p>，这个种子节点的 initial-cluster-state 是 new，并且指定了唯一的 initial-cluster-token 参数。</p>
-<ol start="2">
-<li>AddNode</li>
-</ol>
-</li>
-</ol>
-<pre><code> etcdctl member add infra1 http://10.0.1.11:2380
-$ etcd
-    --data-dir=/var/etcd/data
-    --name=infra1
-    --initial-advertise-peer-urls=http://10.0.1.11:2380
-    --listen-peer-urls=http://0.0.0.0:2380
-    --listen-client-urls=http://0.0.0.0:2379
-    --advertise-client-urls=http://10.0.1.11:2379
-    --initial-cluster=infra0=http://10.0.1.10:2380,infra1=http://10.0.1.11:2380
-    --initial-cluster-state=existing</code></pre><p>对于这个 infra1 成员节点来说，它的 initial-cluster-state 是 existing，也就是要加入已有集群。而它的 initial-cluster 的值，则变成了 infra0 和 infra1 两个节点的 IP 地址。</p>
-<p>所以，以此类推，不断地将 infra2 等后续成员添加到集群中，直到整个集群的节点数目等于用户指定的 size 之后，部署就完成了。</p>
-<h1 id="ETCDOperator源码分析"><a href="#ETCDOperator源码分析" class="headerlink" title="ETCDOperator源码分析"></a>ETCDOperator源码分析</h1><p>Etcd Operator 的启动流程也是围绕着 Informer 展开的，如下所示：</p>
-<pre><code>func (c *Controller) Start() error {
- for {
-  err := c.initResource()
-  ...
-  time.Sleep(initRetryWaitTime)
- }
- c.run()
-}
-
-func (c *Controller) run() {
- ...
-
- _, informer := cache.NewIndexerInformer(source, &amp;api.EtcdCluster{}, 0, cache.ResourceEventHandlerFuncs{
-  AddFunc:    c.onAddEtcdClus,
-  UpdateFunc: c.onUpdateEtcdClus,
-  DeleteFunc: c.onDeleteEtcdClus,
- }, cache.Indexers{})
-
- ctx := context.TODO()
- // TODO: use workqueue to avoid blocking
- informer.Run(ctx.Done())
-}
-</code></pre><p>可以看到，Etcd Operator 启动要做的第一件事（ c.initResource），是创建 EtcdCluster 对象所需要的 CRD，即：前面提到的etcdclusters.etcd.database.coreos.com。这样 Kubernetes 就能够“认识”EtcdCluster 这个自定义 API 资源了。</p>
-<p>而接下来，Etcd Operator 会定义一个 EtcdCluster 对象的 Informer。</p>
-<p>不过，需要注意的是，由于 Etcd Operator 的完成时间相对较早，所以它里面有些代码的编写方式会跟之前讲解的最新的编写方式不太一样。在具体实践的时候，你还是应该以我讲解的模板为主。</p>
-<p>比如，在上面的代码最后，你会看到有这样一句注释：</p>
-<pre><code>// TODO: use workqueue to avoid blocking</code></pre><p>Etcd Operator 并没有用工作队列来协调 Informer 和控制循环<br>不过KuberBuilder 创建的Operator实现了该功能</p>
-<p>在控制循环里执行的业务逻辑，往往是比较耗时间的。比如，创建一个真实的 Etcd 集群。而 Informer 的 WATCH 机制对 API 对象变化的响应，则非常迅速。所以，控制器里的业务逻辑就很可能会拖慢 Informer 的执行周期，甚至可能 Block 它。而要协调这样两个快、慢任务的一个典型解决方法，就是引入一个工作队列</p>
-<p>由于 Etcd Operator 里没有工作队列，那么在它的 EventHandler 部分，就不会有什么入队操作，而直接就是每种事件对应的具体的业务逻辑了。</p>
-<p><img src="etcd-operator.jpg" alt=""></p>
-<h1 id="注意点"><a href="#注意点" class="headerlink" title="注意点"></a>注意点</h1><p>CRD 并不是万能的，它有很多场景不适用，还有性能瓶颈。你能列举出一些不适用 CRD 的场景么？你知道造成 CRD 性能瓶颈的原因主要在哪里么？</p>
-<p>CRD 目前不支持 protobuf，当 API Object 数量 &gt;1K，或者单个对象 &gt;1KB，或者高频请求时，CRD 的响应都会有问题。 所以，CRD 千万不能也不应该被当作数据库使用。</p>
-<p>其实像 Kubernetes ，或者说 Etcd 本身，最佳的使用场景就是作为配置管理的依赖。此外，如果业务需求不能用 CRD 进行建模的时候，比如，需要等待 API 最终返回，或者需要检查 API 的返回值，也是不能用 CRD 的。同时，当你需要完整的 APIServer 而不是只关心 API 对象的时候，使用 API Aggregator</p>
-<h2 id="API-Aggregator"><a href="#API-Aggregator" class="headerlink" title="API Aggregator"></a>API Aggregator</h2><p><img src="aggregator.png" alt=""></p>
-<h1 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h1><p><a href="https://github.com/kubernetes-incubator/metrics-server" target="_blank" rel="noopener">https://github.com/kubernetes-incubator/metrics-server</a></p>
-
+      - image: nicolaka/netshoot 
+        name: netshoot
+        command: [ &quot;/bin/bash&quot;, &quot;-ce&quot;, &quot;tail -f /dev/null&quot; ]
+        imagePullPolicy: Never</code></pre><p>执行测试下载链接(手工在ftp目录创建一个文件)</p>
+<pre><code>wget ftp://myuser:mypass@my-ftp-service/1</code></pre>
             </div>
             <hr/>
 
@@ -645,7 +591,7 @@ func (c *Controller) run() {
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://bamboox.online/2019/02/02/k8s-11-operator-02/">https://bamboox.online/2019/02/02/k8s-11-operator-02/</a>
+                    <a href="https://bamboox.online/2020/03/28/ftp-on-k8s/">https://bamboox.online/2020/03/28/ftp-on-k8s/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -683,8 +629,8 @@ func (c *Controller) run() {
                     
                         <div class="article-tag">
                             
-                                <a href="/tags/kubernetes/">
-                                    <span class="chip bg-color">kubernetes</span>
+                                <a href="/tags/go/">
+                                    <span class="chip bg-color">go</span>
                                 </a>
                             
                         </div>
@@ -726,7 +672,7 @@ func (c *Controller) run() {
         repo: 'gitalk',
         owner: 'bamboox',
         admin: "bamboox",
-        // id: '2019-02-02T22-49-50',
+        // id: '2020-03-28T22-39-50',
         id: location.pathname,
         distractionFreeMode: false  // Facebook-like distraction free mode
     });
@@ -748,49 +694,48 @@ func (c *Controller) run() {
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+                <i class="far fa-dot-circle"></i>&nbsp;本篇
+            </div>
             <div class="card">
-                <a href="/2019/02/04/k8s-12-flannel/">
+                <a href="/2020/03/28/ftp-on-k8s/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/0.jpg" class="responsive-img" alt="K8s Flannel">
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="在k8s上部署ftp">
                         
-                        <span class="card-title">K8s Flannel</span>
+                        <span class="card-title">在k8s上部署ftp</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            FlannelFlannel 项目是 CoreOS 公司主推的容器网络方案。事实上，Flannel 项目本身只是一个框架，提供容器网络功能的，是 Flannel 的后端实现。目前，Flannel 支持三种后端实现，分别是：
-
-VXLAN
-h
+                            ftp运行在k8s集群中方案
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2019-02-04
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-03-28
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/kubernetes/" class="post-category">
-                                    kubernetes
+                            <a href="/categories/ftp-k8s/" class="post-category">
+                                    ftp,k8s
                                 </a>
                             
                             
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/kubernetes/">
-                        <span class="chip bg-color">kubernetes</span>
+                    <a href="/tags/go/">
+                        <span class="chip bg-color">go</span>
                     </a>
                     
                 </div>
@@ -804,31 +749,31 @@ h
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2019/02/01/k8s-11-operator-01/">
+                <a href="/2019/11/01/go-mod-goproxy/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="K8s Operator">
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="go mod 私有仓库搭建">
                         
-                        <span class="card-title">K8s Operator</span>
+                        <span class="card-title">go mod 私有仓库搭建</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            What is Operator？Operator是管理特定应用程序的控制器，通过扩展kubernetes api以软件的方式帮助kubernetes用户创建，配置和管理复杂有状态的应用程序实例(etcd,redis,mysql,prome
+                            搭建私网goproxy引用公司内部sdk,兼容gitlab
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-02-01
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-11-01
                             </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
                             
-                            <a href="/categories/kubernetes/" class="post-category">
-                                    kubernetes
+                            <a href="/categories/go-proxy-gomod-gitlab/" class="post-category">
+                                    go,proxy,gomod,gitlab
                                 </a>
                             
                             
@@ -838,8 +783,8 @@ h
                 
                 <div class="card-action article-tags">
                     
-                    <a href="/tags/kubernetes/">
-                        <span class="chip bg-color">kubernetes</span>
+                    <a href="/tags/go/">
+                        <span class="chip bg-color">go</span>
                     </a>
                     
                 </div>
