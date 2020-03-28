@@ -2,16 +2,16 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>https://bamboox.online/2019/10/01/k8s-klog/</loc>
+    <loc>https://bamboox.online/2020/03/28/ftp-on-k8s/</loc>
     
-    <lastmod>2020-03-28T17:52:42.638Z</lastmod>
+    <lastmod>2020-03-28T17:55:25.934Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://bamboox.online/2020/03/28/ftp-on-k8s/</loc>
+    <loc>https://bamboox.online/2019/10/01/k8s-klog/</loc>
     
-    <lastmod>2020-03-28T17:50:12.850Z</lastmod>
+    <lastmod>2020-03-28T17:52:42.638Z</lastmod>
     
   </url>
   
@@ -51,14 +51,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/categories/index.html</loc>
-    
-    <lastmod>2019-11-19T15:40:25.018Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://bamboox.online/archives/index.html</loc>
+    <loc>https://bamboox.online/about/index.html</loc>
     
     <lastmod>2019-11-19T15:40:25.018Z</lastmod>
     
@@ -79,6 +72,13 @@
   </url>
   
   <url>
+    <loc>https://bamboox.online/categories/index.html</loc>
+    
+    <lastmod>2019-11-19T15:40:25.018Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://bamboox.online/contact/index.html</loc>
     
     <lastmod>2019-11-19T15:40:25.018Z</lastmod>
@@ -86,7 +86,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/about/index.html</loc>
+    <loc>https://bamboox.online/archives/index.html</loc>
     
     <lastmod>2019-11-19T15:40:25.018Z</lastmod>
     
@@ -100,6 +100,13 @@
   </url>
   
   <url>
+    <loc>https://bamboox.online/2019/02/05/k8s-14-cni/</loc>
+    
+    <lastmod>2019-11-19T15:40:25.014Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://bamboox.online/2019/02/15/k8s-15-cun-chu-01/</loc>
     
     <lastmod>2019-11-19T15:40:25.014Z</lastmod>
@@ -107,7 +114,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/02/05/k8s-14-cni/</loc>
+    <loc>https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/</loc>
     
     <lastmod>2019-11-19T15:40:25.014Z</lastmod>
     
@@ -128,21 +135,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/02/15/k8s-15-cun-chu-02/</loc>
-    
-    <lastmod>2019-11-19T15:40:25.014Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://bamboox.online/2019/01/18/k8s-4/</loc>
-    
-    <lastmod>2019-11-19T15:40:25.014Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://bamboox.online/2019/01/19/k8s-5/</loc>
     
     <lastmod>2019-11-19T15:40:25.014Z</lastmod>
     
@@ -177,6 +170,13 @@
   </url>
   
   <url>
+    <loc>https://bamboox.online/2019/01/26/k8s-9-apiserver-quan-xian/</loc>
+    
+    <lastmod>2019-11-19T15:40:25.014Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://bamboox.online/2019/01/03/k8s-install-part2/</loc>
     
     <lastmod>2019-11-19T15:40:25.014Z</lastmod>
@@ -184,7 +184,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/01/26/k8s-9-apiserver-quan-xian/</loc>
+    <loc>https://bamboox.online/2019/01/19/k8s-5/</loc>
     
     <lastmod>2019-11-19T15:40:25.014Z</lastmod>
     
@@ -198,7 +198,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2017/06/10/hexo-blog-part-2/</loc>
+    <loc>https://bamboox.online/2017/06/10/hexo-blog-part-3/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
     
@@ -212,20 +212,6 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/03/01/docker-01-zi-yuan-ge-chi/</loc>
-    
-    <lastmod>2019-11-19T15:40:25.010Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>https://bamboox.online/2017/06/10/hexo-blog-part-3/</loc>
-    
-    <lastmod>2019-11-19T15:40:25.010Z</lastmod>
-    
-  </url>
-  
-  <url>
     <loc>https://bamboox.online/2019/03/02/docker-02-zi-yuan-ge-chi/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
@@ -233,7 +219,14 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/03/03/docker-03-zi-yuan-ge-chi/</loc>
+    <loc>https://bamboox.online/2017/06/10/hexo-blog-part-2/</loc>
+    
+    <lastmod>2019-11-19T15:40:25.010Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://bamboox.online/2019/03/01/docker-01-zi-yuan-ge-chi/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
     
@@ -254,7 +247,7 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2018/01/04/java-01/</loc>
+    <loc>https://bamboox.online/2019/03/03/docker-03-zi-yuan-ge-chi/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
     
@@ -268,6 +261,13 @@
   </url>
   
   <url>
+    <loc>https://bamboox.online/2018/01/04/java-01/</loc>
+    
+    <lastmod>2019-11-19T15:40:25.010Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>https://bamboox.online/2019/02/01/k8s-11-operator-01/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
@@ -275,14 +275,14 @@
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/02/04/k8s-12-flannel/</loc>
+    <loc>https://bamboox.online/2019/02/02/k8s-11-operator-02/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
     
   </url>
   
   <url>
-    <loc>https://bamboox.online/2019/02/02/k8s-11-operator-02/</loc>
+    <loc>https://bamboox.online/2019/02/04/k8s-12-flannel/</loc>
     
     <lastmod>2019-11-19T15:40:25.010Z</lastmod>
     
