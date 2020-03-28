@@ -5,10 +5,10 @@
 <head>
     <meta charset="utf-8">
     <meta name="keywords" content="在k8s上部署ftp, 个人笔记">
-    <meta name="description" content="ftp imagevsftpd具体参数参考https://github.com/fauria/docker-vsftpd
+    <meta name="description" content="ftp imagevsftpd具体参数参考`https://github.com/fauria/docker-vsftpd``
 ftp模式FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式
 
-PORT（主动）方式的连接">
+PORT（主动）方式">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -29,9 +29,9 @@ PORT（主动）方式的连接">
 
     <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
     
+<link rel="alternate" href="/atom.xml" title="Bamboo's Blog" type="application/atom+xml">
 <link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
-<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Bamboo's Blog" type="application/atom+xml">
-</head>
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
 
 
 <body>
@@ -416,7 +416,7 @@ PORT（主动）方式的连接">
                     
                     <div class="info-break-policy">
                         <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        712
+                        713
                     </div>
                     
 
@@ -439,7 +439,7 @@ PORT（主动）方式的连接">
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h1 id="ftp-image"><a href="#ftp-image" class="headerlink" title="ftp image"></a>ftp image</h1><p>vsftpd<br>具体参数参考<br><a href="https://github.com/fauria/docker-vsftpd" target="_blank" rel="noopener">https://github.com/fauria/docker-vsftpd</a></p>
+                <h1 id="ftp-image"><a href="#ftp-image" class="headerlink" title="ftp image"></a>ftp image</h1><p>vsftpd<br>具体参数参考<br>`<a href="https://github.com/fauria/docker-vsftpd``" target="_blank" rel="noopener">https://github.com/fauria/docker-vsftpd``</a></p>
 <h2 id="ftp模式"><a href="#ftp模式" class="headerlink" title="ftp模式"></a>ftp模式</h2><p>FTP协议有两种工作方式：PORT方式和PASV方式，中文意思为主动式和被动式</p>
 <ol>
 <li>PORT（主动）方式的连接过程是：客户端向服务器的FTP端口（默认是21）发送连接请求，服务器接受连接，建立一条命令链路当需要传送数据时，客户端在命令链路上用PORT命令告诉服务器：我打开了XXXX端口，你过来连接我于是服务器从20端口向客户端的XXXX端口发送连接请求，建立一条数据链路来传送数据</li>
