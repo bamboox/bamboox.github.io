@@ -27,9 +27,9 @@
 
     <script src="/libs/jquery/jquery-2.2.0.min.js"></script>
     
-<link rel="alternate" href="/atom.xml" title="Bamboo's Blog" type="application/atom+xml">
 <link rel="stylesheet" href="/css/prism-tomorrow.css" type="text/css">
-<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"></head>
+<link rel="stylesheet" href="/css/prism-line-numbers.css" type="text/css"><link rel="alternate" href="/atom.xml" title="Bamboo's Blog" type="application/atom+xml">
+</head>
 
 
 <body>
@@ -735,24 +735,25 @@ type VolumeAttachmentSpec struct {
             <div class="article-badge left-badge text-color">
                 <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
             <div class="card">
-                <a href="/2019/02/22/k8s-15-cun-chu-03/">
+                <a href="/2019/02/15/k8s-15-cun-chu-01/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/3.jpg" class="responsive-img" alt="K8s 如何选择存储">
+                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="K8s PV、PVC、StorageClass">
                         
-                        <span class="card-title">K8s 如何选择存储</span>
+                        <span class="card-title">K8s PV、PVC、StorageClass</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            如何选择存储持久化数据的多种方式Volume方式awsElasticBlockStore是一个Volume类型。你可以创建一个Pod，定义一个awsElasticBlockStore类型的volume，设置好volumeID，接着使用pod
+                            PV、PVC、StorageClasspvPV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。
+通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集
                         
                     </div>
                     <div class="publish-info">
                         <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2019-02-22
+                            <i class="far fa-clock fa-fw icon-date"></i>2019-02-15
                         </span>
                         <span class="publish-author">
                             
@@ -784,25 +785,24 @@ type VolumeAttachmentSpec struct {
                 下一篇&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
-                <a href="/2019/02/15/k8s-15-cun-chu-01/">
+                <a href="/2019/02/05/k8s-13-cni/">
                     <div class="card-image">
                         
                         
-                        <img src="/medias/featureimages/22.jpg" class="responsive-img" alt="K8s PV、PVC、StorageClass">
+                        <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="K8s CNI">
                         
-                        <span class="card-title">K8s PV、PVC、StorageClass</span>
+                        <span class="card-title">K8s CNI</span>
                     </div>
                 </a>
                 <div class="card-content article-content">
                     <div class="summary block-with-text">
                         
-                            PV、PVC、StorageClasspvPV 描述的，是持久化存储数据卷。这个 API 对象主要定义的是一个持久化存储在宿主机上的目录，比如一个 NFS 的挂载目录。
-通常情况下，PV 对象是由运维人员事先创建在 Kubernetes 集
+                            CNICNI(container network interface)的目的在于定义一个标准的接口规范，使得kubernetes在增删POD的时候，能够按照规范向CNI实例提供标准的输入并获取标准的输出，再将输出作为kubernetes管理
                         
                     </div>
                     <div class="publish-info">
                             <span class="publish-date">
-                                <i class="far fa-clock fa-fw icon-date"></i>2019-02-15
+                                <i class="far fa-clock fa-fw icon-date"></i>2019-02-05
                             </span>
                         <span class="publish-author">
                             
